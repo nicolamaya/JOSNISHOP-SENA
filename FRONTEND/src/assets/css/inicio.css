@@ -1,0 +1,657 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff;
+}
+
+/* ===== Menú de escritorio (BASE - Se adapta para responsive) ===== */
+.menu {
+  /* Este div parece ser para un menú diferente o antiguo, lo mantendremos oculto para no interferir */
+  display: none;
+}
+
+/* ===== Menú superior (Navbar principal) ===== */
+header {
+  background: #ffe082;
+  padding: 10px 0;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+}
+
+.logo {
+  width: 100px;
+  margin-right: 20px;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+
+.titulo {
+  /* Enlace Categorías en desktop */
+  font-size: 1.3em;
+  margin-right: 20px;
+  color: #111;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s;
+}
+
+.titulo:hover {
+  color: #333;
+}
+
+.buscador-container {
+  /* Barra de búsqueda en desktop */
+  position: relative;
+  display: inline-block;
+  flex: 1;
+}
+
+.buscador {
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  width: 100%;
+  background: #fff9c4;
+  font-size: 1em;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.icono-lupa {
+  position: absolute;
+  right: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.3em;
+  pointer-events: none;
+}
+
+.iconos {
+  /* Íconos de navegación en desktop (casa, pedidos, carrito, usuario) */
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-size: 1.5em;
+}
+
+.iconos .fa-solid {
+  color: #1a3c1a;
+  margin-right: 5px;
+}
+
+.iniciar-sesion {
+  /* Enlace Iniciar Sesión en desktop */
+  font-weight: bold;
+  color: #111;
+  text-decoration: none;
+  font-size: 1em;
+  transition: color 0.2s;
+}
+
+.iniciar-sesion:hover {
+  color: #333;
+}
+
+/* ===== Botón de hamburguesa para MÓVIL Y ESCRITORIO ===== */
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 2em;
+  color: #222;
+  cursor: pointer;
+  margin-right: 20px;
+}
+
+/* ===== Menú lateral hamburguesa (DESPLEGABLE) ===== */
+.hamburger-menu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, #fff 0%, #fff6db 100%);
+  box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+  z-index: 9999;
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.hamburger-menu.active {
+  transform: translateX(0);
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 2.2em;
+  color: #9b1c10;
+  cursor: pointer;
+  margin: 15px 15px 0 0;
+  align-self: flex-end;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #fb2e01;
+}
+
+.menu-header-logo {
+  display: flex;
+  align-items: center;
+  padding: 20px 20px 10px 20px;
+  background-color: #ffffff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.menu-header-logo .logo {
+  height: 60px;
+  width: auto;
+  margin-right: 15px;
+}
+
+.menu-header-logo .titulo-menu {
+  font-size: 1.5em;
+  color: #123d24;
+  font-weight: 700;
+}
+
+.menu-search-container {
+  position: relative;
+  padding: 10px 20px 20px 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.menu-search-container .buscador-lateral {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 25px;
+  border: 1px solid #ccc;
+  background: #fff;
+  font-size: 1em;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+}
+
+.menu-search-container .icono-lupa-lateral {
+  position: absolute;
+  right: 30px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #888;
+  font-size: 1.2em;
+  pointer-events: none;
+}
+
+.account-links-mobile {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 20px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+.account-links-mobile .menu-link-mobile {
+    font-size: 1.3em;
+    color: #222;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+.account-links-mobile .menu-link-mobile i {
+    margin-right: 10px;
+    font-size: 1.2em;
+    color: #14442d;
+}
+
+/* ===== Lista de enlaces del menú lateral ===== */
+.menu-list {
+  list-style: none;
+  padding: 20px;
+  margin: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.menu-list li {
+  margin-bottom: 15px;
+  font-family: "Montserrat", Arial, sans-serif;
+}
+
+.menu-list li a.menu-link {
+  color: #222;
+  text-decoration: none;
+  font-family: "Montserrat", Arial, sans-serif;
+  font-size: 1.3em;
+  transition: color 0.2s, transform 0.2s;
+  display: flex;
+  align-items: center;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.menu-list li a.menu-link:hover,
+.menu-list li a.menu-link:active {
+  color: #9b1c10;
+  background-color: #fff9db;
+  transform: translateX(5px);
+}
+
+.menu-list li a.menu-link i {
+  margin-right: 10px;
+  font-size: 1.2em;
+  color: #14442d;
+}
+
+.menu-list li a.menu-link.menu-inicio i {
+  color: #1c2130;
+}
+
+/* ===== Pie del menú hamburguesa ===== */
+.menu-footer {
+  background: #5a1a0a;
+  color: #fff;
+  padding: 18px 10px 10px 10px;
+  font-size: 0.95em;
+}
+
+.footer-columns {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.footer-title {
+  font-weight: normal;
+  font-size: 1em;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.footer-columns ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.footer-columns li {
+  margin-bottom: 4px;
+  font-size: 0.95em;
+}
+
+.footer-bottom {
+  text-align: center;
+  margin-top: 10px;
+  font-size: 0.9em;
+}
+
+.footer-bottom ul {
+  list-style: none;
+  padding: 0;
+  margin: 6px 0 0 0;
+}
+
+.footer-bottom li {
+  margin-bottom: 2px;
+}
+
+/* ========================================================================= */
+/* ===== MEDIA QUERIES: ESTILOS PARA PANTALLAS PEQUEÑAS (MÓVIL) ===== */
+/* ========================================================================= */
+@media (max-width: 900px) {
+  /* Oculta los elementos del NAVBAR PRINCIPAL en móvil */
+  .navbar .titulo,
+  .navbar .buscador-container,
+  .navbar .iconos,
+  .navbar .iniciar-sesion {
+    display: none;
+  }
+
+  /* El botón de hamburguesa se mostrará de forma predeterminada */
+  .hamburger-btn {
+    display: block; /* Asegura que se muestre */
+  }
+
+  /* Ajustes del layout del navbar para móvil */
+  .navbar {
+    justify-content: space-between;
+    padding: 0 10px;
+  }
+
+  .logo {
+    width: 80px;
+    margin: 0;
+  }
+}
+
+/* ========================================================================= */
+/* ===== MEDIA QUERIES: ESTILOS PARA PANTALLAS GRANDES (ESCRITORIO) ===== */
+/* ========================================================================= */
+@media (min-width: 901px) {
+  /* Oculta los elementos del menú lateral que solo son para móvil */
+  .menu-mobile-only {
+    display: none !important;
+  }
+
+  /* Ajusta el ancho y posición del menú para que sea un dropdown en desktop */
+  .hamburger-menu {
+    width: 280px; /* Ancho ajustado para desktop */
+    top: 65px; /* Aparece debajo del navbar, ajusta según la altura de tu navbar */
+    left: auto;
+    right: 20px; /* Posición a la derecha, al lado del icono de hamburguesa */
+    height: auto; /* Altura automática según el contenido */
+    border-radius: 12px; /* Bordes más redondeados */
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25); /* Sombra más pronunciada */
+    background: #ffffff; /* Fondo blanco */
+    border: 1px solid #ddd; /* Borde sutil */
+    transform: translateX(100%); /* Oculto inicialmente a la derecha */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out; /* Transición más suave */
+    opacity: 0; /* Inicialmente transparente */
+    overflow-y: hidden; /* **CAMBIO CLAVE: Oculta el scroll en escritorio** */
+  }
+
+  .hamburger-menu.active {
+    transform: translateX(0); /* Muestra el menú deslizándose */
+    opacity: 1; /* Lo hace visible */
+  }
+
+  /* Muestra el botón de cerrar en el menú de escritorio */
+  .hamburger-menu .close-btn {
+    display: block; /* Muestra el botón de cerrar */
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.8em; /* Ajusta el tamaño de la X */
+    color: #555; /* Color más sutil */
+  }
+
+  .hamburger-menu .close-btn:hover {
+    color: #3d1107; /* Color al pasar el mouse */
+  }
+
+  /* Oculta el buscador y los enlaces de cuenta del menú en escritorio */
+  .menu-search-container,
+  .account-links-mobile {
+      display: none !important;
+  }
+
+  /* Ajusta los enlaces para que parezcan un dropdown, con padding y margen */
+  .menu-list {
+    padding: 10px 15px 0 15px; /* Padding ajustado */
+    flex: none; /* Elimina el flex-grow para que no ocupe todo el espacio */
+  }
+  
+  .menu-list li {
+    margin-bottom: 5px; /* Menos espacio entre ítems para un dropdown */
+  }
+
+  .menu-list li a.menu-link {
+    padding: 10px 12px; /* Padding de los enlaces */
+    font-size: 1.1em;
+    font-weight: 500; /* Un poco menos negrita */
+    color: #333; /* Color de texto más suave */
+  }
+
+  .menu-list li a.menu-link i {
+    color: #11603a; /* Cambia el color del ícono para que coincida con el tema */
+    font-size: 1.1em; /* Ajusta el tamaño del ícono */
+  }
+
+  .menu-list li a.menu-link:hover {
+    background-color: #f0f0f0; /* Fondo más claro al pasar el mouse */
+    color: #000;
+  }
+
+  /* Footer en escritorio: más compacto o estilizado si se incluye */
+  .menu-footer {
+    padding: 15px 15px;
+    background: #f8f8f8; /* Fondo más claro para el footer en desktop */
+    color: #555;
+    border-top: 1px solid #eee;
+    font-size: 0.85em;
+  }
+
+  .menu-footer .footer-columns {
+    flex-direction: column; /* Apila las columnas */
+    gap: 8px; /* Menos espacio entre ellas */
+  }
+
+  .menu-footer .footer-title {
+    font-size: 0.95em;
+    color: #ffffff;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .menu-footer ul {
+    margin-bottom: 10px;
+  }
+
+  .menu-footer li {
+    margin-bottom: 2px;
+    color: #ffffff;
+  }
+
+  .menu-footer .footer-bottom {
+    margin-top: 8px;
+  }
+}
+
+/* Carrusel */
+.carousel {
+  width: 1700px;
+  max-width: 100%;
+  margin: 40px auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.carousel-inner {
+  display: flex;
+  transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+  min-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.carousel-item img {
+  max-width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.carousel-control-prev,
+.carousel-control-next {
+  position: absolute;
+  top: 50%;
+  transform: translateY(100%);
+  background-color: #6fcb9f;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.carousel-control-prev {
+  left: 10px;
+}
+
+.carousel-control-next {
+  right: 10px;
+}
+
+/* Productos */
+.productos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 32px;
+  padding: 32px 24px;
+  background: #fff6db;
+}
+
+.inicio-producto {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 4px 18px 0 rgba(0, 0, 0, 0.1), 0 1.5px 4px 0 rgba(0, 0, 0, 0.07);
+  padding: 22px 18px 18px 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: box-shadow 0.2s, transform 0.18s;
+  min-height: 420px;
+  position: relative;
+  border: 1.5px solid #f3e6c2;
+}
+
+.inicio-producto:hover {
+  box-shadow: 0 8px 32px 0 rgba(111, 203, 159, 0.18), 0 2px 8px 0 rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px) scale(1.04);
+  border-color: #ffe082;
+}
+
+.inicio-producto img {
+  width: 170px;
+  height: 170px;
+  object-fit: contain;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+  margin-bottom: 18px;
+  margin-top: 8px;
+  display: block;
+}
+
+.precio {
+  color: #fb2e01;
+  font-weight: 700;
+  font-size: 2em;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(29, 27, 27, 0.133)
+}
+
+.inicio-producto p {
+  font-size: 1.08em;
+  color: #222;
+  margin: 0 0 8px 0;
+  font-family: "Montserrat", Arial, sans-serif;
+  font-weight: 500;
+  line-height: 1.3;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.inicio-producto .btn {
+  margin-top: 10px;
+  background: #09532f;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 22px;
+  font-size: 1em;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: background 0.18s;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.inicio-producto .btn:hover {
+  background: #20563d;
+}
+
+.ver-mas-container {
+  text-align: center;
+  margin: 30px 0;
+}
+
+.btn-vermas {
+  background: #206d48;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-vermas:hover {
+  background: #46ae7d;
+}
+
+.chat-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: #0a5c34;
+  color: white;
+  font-size: 22px;
+  padding: 15px;
+  border-radius: 50%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+}
+
+.chat-btn:hover {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Estilos de desplazamiento */
+.inicio-scroll {
+  max-height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #f4f2f2 #ffffff;
+}
+
+.inicio-scroll::-webkit-scrollbar {
+  width: 8px;
+}
+
+.inicio-scroll::-webkit-scrollbar-thumb {
+  background: #c8c8c8;
+  border-radius: 4px;
+}
+
+.inicio-scroll::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+/* Botones adicionales */
+.btn-cerrar-extra {
+  background: #0d7b46;
+  color: white;
+  padding: 10px 22px;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: normal;
+  transition: background 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  width: fit-content;
+}
