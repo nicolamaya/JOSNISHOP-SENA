@@ -1,0 +1,234 @@
+import React, { useState } from "react";
+import axios from "axios";
+import { Bar } from "react-chartjs-2";
+import { Chart, CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend } from "chart.js";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+Chart.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
+
+// Define los posibles tipos de respuesta del backend
+type VentaAnual = { Anio: number; TotalVentasAnuales: number };
+type VentaTotalAnual = { TotalVentasAnuales: number };
+type VentaMensual = { TotalVentasMensuales: number };
+type VentaDiaria = { TotalVentasDiarias: number };
+type VentaResponse = VentaAnual | VentaTotalAnual | VentaMensual | VentaDiaria;
+
+const typeOptions = ["anio", "mes", "dia"] as const;
+type QueryType = typeof typeOptions[number];
+
+const Ventas: React.FC = () => {
+  const [ventas, setVentas] = useState<VentaResponse[]>([]);
+  const [type, setType] = useState<QueryType>("anio");
+  const [anio, setAnio] = useState<number>(2025);
+  const [mes, setMes] = useState<number | null>(null);
+  const [dia, setDia] = useState<number | null>(null);
+
+  const consultarVentas = async () => {
+    try {
+      const params = [
+        anio,
+        type !== "anio" ? mes : null,
+        type === "dia" ? dia : null
+      ];
+      const url = `http://localhost:8000/ventas?anio=${params[0]}${params[1] ? `&mes=${params[1]}` : ""}${params[2] ? `&dia=${params[2]}` : ""}`;
+      const res = await axios.get<VentaResponse[]>(url);
+      setVentas(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const descargarPDF = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(22);
+    doc.text("Reporte de Ventas", 14, 20);
+
+    // Fecha de generación
+    doc.setFontSize(10);
+    doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 28);
+
+    // Mensaje emotivo bonito y bien separado
+    doc.setFontSize(12);
+    const mensaje = `Estimado vendedor:
+
+Este reporte refleja hasta el día de hoy todas sus ventas registradas en nuestra plataforma.
+Queremos felicitarle y agradecerle sinceramente por su dedicación, esfuerzo y compromiso diario.
+Cada venta representa no solo un logro comercial, sino también el resultado de su pasión, constancia y trabajo en equipo.
+
+Gracias por confiar en nosotros y por ser parte fundamental de nuestra familia.
+Recuerde que cada meta alcanzada es un paso más hacia sus sueños y que juntos seguiremos creciendo y superando nuevos retos.
+
+¡Siga adelante, su éxito es nuestro orgullo!
+
+Con aprecio,
+El equipo de JosniShop`;
+
+    // Ajusta el texto para que no se salga del margen
+    const mensajeLines = doc.splitTextToSize(mensaje, 180);
+    doc.text(mensajeLines, 14, 38);
+
+    // Calcula la posición Y después del texto
+    const yAfterMensaje = 38 + mensajeLines.length * 7 + 10;
+
+    // Tabla de datos
+    if (ventas.length === 0) {
+      doc.setFontSize(12);
+      doc.text("No hay datos para mostrar.", 14, yAfterMensaje);
+    } else {
+      const headers = [Object.keys(ventas[0])];
+      const rows = ventas.map(v => Object.values(v));
+      autoTable(doc, {
+        head: headers,
+        body: rows,
+        startY: yAfterMensaje,
+        styles: { halign: 'center' },
+        headStyles: { fillColor: "#27ae60", textColor: "#fff" },
+        margin: { top: 10 },
+      });
+    }
+
+    doc.save("reporte_ventas.pdf");
+  };
+
+  // Detecta el campo correcto según el tipo de consulta
+  let labels: string[] = [];
+  let dataVentas: number[] = [];
+
+  if (ventas.length > 0) {
+    const v = ventas[0] as VentaResponse;
+    if (type === "anio" && "Anio" in v) {
+      // Agrupado por año
+      labels = ventas.map(vv => (vv as VentaAnual).Anio.toString());
+      dataVentas = ventas.map(vv => (vv as VentaAnual).TotalVentasAnuales ?? 0);
+    } else if (type === "anio" && "TotalVentasAnuales" in v) {
+      // Solo total anual
+      labels = ["Total Anual"];
+      dataVentas = [(v as VentaTotalAnual).TotalVentasAnuales ?? 0];
+    } else if (type === "mes" && "TotalVentasMensuales" in v) {
+      labels = ["Total Mensual"];
+      dataVentas = [(v as VentaMensual).TotalVentasMensuales ?? 0];
+    } else if (type === "dia" && "TotalVentasDiarias" in v) {
+      labels = ["Total Diario"];
+      dataVentas = [(v as VentaDiaria).TotalVentasDiarias ?? 0];
+    }
+  }
+
+  const chartVentas = {
+    labels,
+    datasets: [
+      {
+        label: "Ventas",
+        data: dataVentas,
+        backgroundColor: "#27ae60",
+      },
+    ],
+  };
+
+  const inputStyle: React.CSSProperties = {
+    padding: "8px",
+    borderRadius: "6px",
+    border: "1px solid #b2bec3",
+    outline: "none",
+    fontSize: "1rem",
+    background: "#f9f9f9",
+    marginRight: "0.5rem",
+    minWidth: "80px"
+  };
+
+  const selectStyle: React.CSSProperties = {
+    ...inputStyle,
+    minWidth: "110px"
+  };
+
+  const buttonStyle: React.CSSProperties = {
+    background: "#27ae60",
+    color: "#fff",
+    borderRadius: "8px",
+    padding: "8px 18px",
+    border: "none",
+    fontWeight: "bold",
+    fontSize: "1rem",
+    cursor: "pointer",
+    transition: "background 0.2s",
+  };
+
+  const pdfButtonStyle: React.CSSProperties = {
+    ...buttonStyle,
+    background: "#2980b9",
+    marginBottom: "1rem"
+  };
+
+  return (
+    <div style={{ padding: "2rem" }}>
+      <h1 className="page-title">Ventas</h1>
+      <div style={{ marginBottom: "1rem", display: "flex", gap: "1rem", alignItems: "center" }}>
+        <select
+          value={type}
+          onChange={e => setType(e.target.value as QueryType)}
+          style={selectStyle}
+        >
+          <option value="anio">Por año</option>
+          <option value="mes">Por mes</option>
+          <option value="dia">Por día</option>
+        </select>
+        <input
+          type="number"
+          value={anio}
+          onChange={e => setAnio(Number(e.target.value))}
+          placeholder="Año"
+          style={inputStyle}
+        />
+        {type !== "anio" && (
+          <input
+            type="number"
+            value={mes ?? ""}
+            onChange={e => setMes(Number(e.target.value))}
+            placeholder="Mes"
+            min={1}
+            max={12}
+            style={inputStyle}
+          />
+        )}
+        {type === "dia" && (
+          <input
+            type="number"
+            value={dia ?? ""}
+            onChange={e => setDia(Number(e.target.value))}
+            placeholder="Día"
+            min={1}
+            max={31}
+            style={inputStyle}
+          />
+        )}
+        <button onClick={consultarVentas} style={buttonStyle}>
+          Consultar
+        </button>
+      </div>
+      <button
+        onClick={descargarPDF}
+        style={pdfButtonStyle}
+        disabled={ventas.length === 0}
+      >
+        Descargar PDF
+      </button>
+      <div style={{
+        marginTop: "2rem",
+        background: "#f6fff6",
+        borderRadius: "16px",
+        boxShadow: "0 2px 12px #0001",
+        padding: "2rem",
+        textAlign: "center"
+      }}>
+        <Bar data={chartVentas} options={{
+          responsive: true,
+          plugins: {
+            legend: { display: true },
+            title: { display: true, text: "Gráfico de Ventas" }
+          }
+        }} />
+      </div>
+    </div>
+  );
+};
+
+export default Ventas;
