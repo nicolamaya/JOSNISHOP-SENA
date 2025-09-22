@@ -72,3 +72,8 @@ app.include_router(resena_router, prefix="/api")
 app.include_router(compra.router)  # Nota: Se importa y se incluye de un módulo diferente.
 app.include_router(pago_router)
 app.include_router(ventas_router)
+
+
+@app.get("/")
+def root():
+    return {"msg": "API funcionando"}
