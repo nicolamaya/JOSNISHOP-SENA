@@ -4,10 +4,9 @@ from main import app
 client = TestClient(app)
 
 def test_login_exitoso():
-    """
-    Verifica que el inicio de sesión con credenciales válidas funcione.
-    """
-    # Se crea un usuario de prueba para la verificación
+    
+    #Verifica que el inicio de sesión con credenciales válidas funcione.
+    #Se crea un usuario de prueba para la verificación
     test_user_data = {
         "nombre": "Usuario Test",
         "correo": "login_test@mail.com",

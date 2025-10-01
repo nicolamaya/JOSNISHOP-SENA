@@ -6,12 +6,12 @@ import string
 client = TestClient(app)
 
 def generate_random_email():
-    """Genera un correo electrónico único y aleatorio para las pruebas."""
+    #Genera un correo electrónico único y aleatorio para las pruebas.
     random_string = ''.join(random.choices(string.ascii_lowercase + string.digits, k=8))
     return f"test_user_{random_string}@example.com"
 
 def test_registro_usuario_exitoso():
-    """Verifica que el registro de un nuevo usuario funcione correctamente."""
+    #Verifica que el registro de un nuevo usuario funcione correctamente.
     
     unique_email = generate_random_email()
     

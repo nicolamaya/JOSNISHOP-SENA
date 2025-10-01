@@ -4,10 +4,10 @@ from main import app
 client = TestClient(app)
 
 def test_recuperar_contrasena_correo_no_existente():
-    """
-    Verifica que la solicitud de recuperación de contraseña para un correo
-    que no existe en la base de datos devuelve un error 404.
-    """
+    
+    #Verifica que la solicitud de recuperación de contraseña para un correo
+    #que no existe en la base de datos devuelve un error 404.
+    
     # Correo que no existe en la base de datos.
     correo_inexistente = "usuario_no_existe@mail.com"
 
