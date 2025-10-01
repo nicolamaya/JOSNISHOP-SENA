@@ -24,11 +24,9 @@ jobs:
 
     - name: Instalar dependencias # Paso 3: Instalar las librerías del proyecto
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest # Instala las herramientas de linter y pruebas
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        fi
+        python -m pip install --upgrade pip  
+        pip install flake8 pytest
+        pip install -r requirements.txt
 
     - name: Validar con Linter (Flake8) # Paso 4: Ejecutar el linter para validar el estilo y sintaxis
       run: |
