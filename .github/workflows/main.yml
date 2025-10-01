@@ -39,5 +39,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
 
     - name: Correr pruebas unitarias (Pytest) # Paso 5: Ejecutar las pruebas unitarias
+      env:
+          PYTHONPATH: BACKEND
       run: |
         pytest
