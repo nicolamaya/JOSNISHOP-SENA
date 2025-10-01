@@ -13,6 +13,24 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest # Ejecuta el workflow en una máquina virtual Linux
 
+    services:
+      # Definimos un contenedor de MariaDB para que las pruebas puedan conectarse
+      mysql:
+        image: mariadb:10.6 # Puedes usar mysql:8.0 o mariadb:latest
+        env:
+          # Variable para indicar que NO se necesita una contraseña de root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          # Nombre de la base de datos que creará el contenedor al inicio
+          MYSQL_DATABASE: test_db_ci
+        ports:
+          # Mapea el puerto del contenedor (3306) al puerto de la red de la CI (3306)
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
     - name: Checkout del código # Paso 1: Obtener el código del repositorio
       uses: actions/checkout@v4
