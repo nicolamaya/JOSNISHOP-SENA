@@ -13,10 +13,33 @@ jobs:
   build_and_test:
     runs-on: ubuntu-latest # Ejecuta el workflow en una máquina virtual Linux
 
+    services:
+      # Definimos un contenedor de MariaDB para que las pruebas puedan conectarse
+      mysql:
+        image: mariadb:10.6 # Puedes usar mysql:8.0 o mariadb:latest
+        env:
+          # Variable para indicar que NO se necesita una contraseña de root
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+          # Nombre de la base de datos que creará el contenedor al inicio
+          MYSQL_DATABASE: test_db_ci
+        ports:
+          # Mapea el puerto del contenedor (3306) al puerto de la red de la CI (3306)
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
     steps:
     - name: Checkout del código # Paso 1: Obtener el código del repositorio
       uses: actions/checkout@v4
-
+      
+    - name: Instalar dependencias para MariaDB # ¡Paso nuevo!: Intalar las dependencias necesarias para que sirva Mariadb
+      run: |
+          sudo apt-get update
+          sudo apt-get install -y libmariadb-dev
+          
     - name: Configurar Python # Paso 2: Configurar el entorno de Python
       uses: actions/setup-python@v5
       with:
@@ -24,11 +47,9 @@ jobs:
 
     - name: Instalar dependencias # Paso 3: Instalar las librerías del proyecto
       run: |
-        python -m pip install --upgrade pip
-        pip install flake8 pytest # Instala las herramientas de linter y pruebas
-        if [ -f requirements.txt ]; then
-          pip install -r requirements.txt
-        fi
+        python -m pip install --upgrade pip  
+        pip install flake8 pytest
+        pip install -r BACKEND/requirements.txt
 
     - name: Validar con Linter (Flake8) # Paso 4: Ejecutar el linter para validar el estilo y sintaxis
       run: |
@@ -36,5 +57,7 @@ jobs:
         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=120 --statistics
 
     - name: Correr pruebas unitarias (Pytest) # Paso 5: Ejecutar las pruebas unitarias
+      env:
+          PYTHONPATH: BACKEND
       run: |
         pytest
