@@ -4,7 +4,7 @@ from email.message import EmailMessage
 
 def enviar_alerta_stock(destinatario, producto, cantidad):
     remitente = "josnishop@gmail.com"
-    password = "sldk kwtc trmn tgrs"
+    password = "iyzn auso rqox thkm"
     asunto = "¡Atención! Stock bajo en JosniShop"
     cuerpo = f"""
 Hola,
@@ -31,7 +31,7 @@ El equipo de JosniShop
 
 def enviar_confirmacion_compra(correo, pedido_id):
     remitente = "josnishop@gmail.com"
-    password = "sldk kwtc trmn tgrs"
+    password = "iyzn auso rqox thkm"
     asunto = "¡Gracias por tu compra en JosniShop!"
     cuerpo = f"""
 Hola,
@@ -58,7 +58,7 @@ Gracias por confiar en JosniShop.
 
 def send_registration_email(to_email):
     remitente = "josnishop@gmail.com"
-    password = "sldk kwtc trmn tgrs"
+    password = "iyzn auso rqox thkm"
     subject = "Registro exitoso en JosniShop"
     body = (
         "¡Bienvenido a JosniShop!\n\n"
@@ -79,7 +79,7 @@ def send_registration_email(to_email):
 
 def enviar_alerta_resena(destinatario, producto, comentario, calificacion):
     remitente = "josnishop@gmail.com"
-    password = "sldk kwtc trmn tgrs"
+    password = "iyzn auso rqox thkm"
     asunto = "¡Nueva reseña en tu producto JosniShop!"
     cuerpo = f"""
 Hola,
