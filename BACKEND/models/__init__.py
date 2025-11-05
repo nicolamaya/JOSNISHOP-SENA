@@ -11,3 +11,4 @@ from .roles import Rol
 from .usuarios import Usuario
 from .videos import Video
 from .pagos import Pago
+from .bot_response import BotResponse

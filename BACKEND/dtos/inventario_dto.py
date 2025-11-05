@@ -1,12 +1,14 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 class InventarioBase(BaseModel):
     producto_id: int
     cantidad: int
     stock_minimo: int
-    fecha_actualizacion: datetime
+    # fecha_actualizacion puede ser opcional en respuestas si la BD no la tiene
+    fecha_actualizacion: Optional[datetime] = None
 
 
 class InventarioCreate(InventarioBase):
@@ -17,7 +19,7 @@ class InventarioUpdate(BaseModel):
     producto_id: int | None = None
     cantidad: int | None = None
     stock_minimo: int | None = None
-    fecha_actualizacion: datetime | None = None
+    fecha_actualizacion: Optional[datetime] = None
 
 
 class InventarioOut(InventarioBase):

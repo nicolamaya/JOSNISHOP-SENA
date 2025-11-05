@@ -130,7 +130,7 @@ BACKEND/
 
    ```sh
    python -m venv env
-   .\venv\Scripts\activate
+   .\env\Scripts\activate
    ```
 
 3. **Instala las dependencias:**
