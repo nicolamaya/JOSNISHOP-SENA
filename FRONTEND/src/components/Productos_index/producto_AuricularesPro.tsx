@@ -115,7 +115,6 @@ const ProductoAuricularesPro: React.FC = () => {
                 // Validar si el usuario está logueado (por ejemplo, si hay un token en localStorage)
                 const token = localStorage.getItem("token");
                 if (!token) {
-                  alert("Debes iniciar sesión para agregar productos al carrito.");
                   window.location.href = "/login";
                   return;
                 }
@@ -142,7 +141,7 @@ const ProductoAuricularesPro: React.FC = () => {
                   carrito.push(producto);
                 }
                 localStorage.setItem("carrito", JSON.stringify(carrito));
-                alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
+                window.location.href = "/carrito";
               }}
             >
               Agregar al carrito

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../../assets/css/producto_sele/Producto_selec.css";
+import NavBar from "../NavBar";
 
 const ProductoZapatillas: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -31,46 +32,7 @@ const ProductoZapatillas: React.FC = () => {
 
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header className="menu">
-        <div className="hamburger">
-          <i className="fa-solid fa-bars"></i>
-        </div>
-        <div className="logo">
-          <img src="/logo.png" alt="Josnishop Logo" />
-        </div>
-        <a href="/categorias" className="categorias">Categorías</a>
-        <div className="search-bar">
-          <input type="text" placeholder="Buscar" />
-          <i className="fa-solid fa-search"></i>
-        </div>
-        <nav className="nav-icons">
-          <a href="/"><i className="fa-solid fa-house"></i></a>
-          <a href="/inicio"><i className="fa-solid fa-bag-shopping"></i></a>
-          <a href="/carrito"><i className="fa-solid fa-cart-shopping"></i></a>
-          {(() => {
-            const userName = localStorage.getItem("userName");
-            const userId = localStorage.getItem("userId");
-            if (userId) {
-              return (
-                <a href="/panel" className="user-session" style={{ display: 'flex', alignItems: 'center', fontWeight: 600, color: '#1b3a2b' }}>
-                  <i className="fa-solid fa-user" style={{ fontSize: 22, marginRight: 6 }}></i>
-                  <span style={{ fontSize: 16 }}>
-                    {userName ? `${userName}` : 'Mi cuenta'}
-                  </span>
-                </a>
-              );
-            } else {
-              return (
-                <a href="/login" className="iniciar-sesion">
-                  <i className="fa-solid fa-user" style={{ marginRight: 6 }}></i>
-                  Iniciar Sesión
-                </a>
-              );
-            }
-          })()}
-        </nav>
-      </header>
+      <NavBar />
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="producto-container">
@@ -106,44 +68,19 @@ const ProductoZapatillas: React.FC = () => {
             defaultValue={1}
             style={{ width: "50px", marginLeft: "5px" }}
           />
-          <button
-            className="comprar-btn"
-            onClick={() => {
-              // Verificar si el usuario está logueado
-              const token = localStorage.getItem("token");
-              if (!token) {
-                alert("Debes iniciar sesión para agregar productos al carrito.");
-                window.location.href = "/login";
-                return;
-              }
-              type ProductoCarrito = {
-                id: number;
-                nombre: string;
-                precio: number;
-                imagen: string;
-                cantidad: number;
-              };
-              const cantidad = parseInt((document.getElementById("cantidad-zapatillas") as HTMLInputElement).value) || 1;
-              const producto: ProductoCarrito = {
-                id: 69,
-                nombre: "Zapatillas deportivas",
-                precio: 79999,
-                imagen: "src/assets/IMG/index/zapatillas.jpg",
-                cantidad,
-              };
-              const carrito: ProductoCarrito[] = JSON.parse(localStorage.getItem("carrito") || "[]");
-              const index = carrito.findIndex((p: ProductoCarrito) => p.id === producto.id);
-              if (index >= 0) {
-                carrito[index].cantidad += cantidad;
-              } else {
-                carrito.push(producto);
-              }
-              localStorage.setItem("carrito", JSON.stringify(carrito));
-              alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
-            }}
-          >
-            Agregar al carrito
-          </button>
+            <div style={{ display: "flex", justifyContent: "flex-start" }}>
+              <button className="comprar-btn" onClick={() => {
+                const token = localStorage.getItem("token");
+                if (!token) return window.location.href = "/login";
+                const cantidad = parseInt((document.getElementById("cantidad-zapatillas") as HTMLInputElement)?.value) || 1;
+                const producto = { id: 101, nombre: 'Zapatillas', precio: 129900, imagen: 'src/assets/IMG/index/zapatillas.png', cantidad };
+                const carrito = JSON.parse(localStorage.getItem('carrito') || '[]');
+                const idx = carrito.findIndex((p: any) => p.id === producto.id);
+                if (idx >= 0) carrito[idx].cantidad += cantidad; else carrito.push(producto);
+                localStorage.setItem('carrito', JSON.stringify(carrito));
+                window.location.href = '/carrito';
+              }}>Agregar al carrito</button>
+            </div>
         </div>
       </div>
 

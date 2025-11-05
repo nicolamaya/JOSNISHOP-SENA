@@ -226,7 +226,8 @@ const VideosPage: React.FC = () => {
               className="nav-btn cart"
               onClick={() => setShowCarrito(true)}
             >
-              <i className="fa fa-shopping-cart"></i>
+              {/* icono de información del producto (reemplaza carrito) */}
+              <i className="fa fa-info-circle" aria-hidden="true"></i>
             </button>
           </div>
 
@@ -303,6 +304,7 @@ const VideosPage: React.FC = () => {
     </div>
   </div>
 </nav>
+  {/* Chat integrado en la página de inicio - se usa en /inicio */}
         </div>
       </main>
 

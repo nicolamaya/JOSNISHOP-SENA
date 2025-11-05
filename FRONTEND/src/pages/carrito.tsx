@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../assets/css/carrito.css";
-import { FaBars } from "react-icons/fa";
+import NavBar from "../components/NavBar";
 import "font-awesome/css/font-awesome.min.css";
 import CryptoJS from "crypto-js";
 
@@ -207,12 +207,6 @@ const Carrito: React.FC = () => {
     setUsarGuardada(true);
     setShowResumen(true);
   };
-
-  const handleUsarGuardada = () => {
-    setUsarGuardada(true);
-    setShowResumen(true);
-  };
-
   const handleCambiarMetodo = () => {
     setShowResumen(false);
     setShowCardForm(true);
@@ -268,43 +262,7 @@ const Carrito: React.FC = () => {
 
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header>
-        <div className="navbar">
-          <button className="hamburger-btn" onClick={handleMenuOpen}>
-            <FaBars />
-          </button>
-          <a href="/">
-            <img src="/public/logo.png" alt="Logo JOSNISHOP" className="logo" />
-          </a>
-          <a href="/categorias" className="titulo">
-            Categorías
-          </a>
-          <div className="buscador-container">
-            <input type="text" placeholder="Buscar" className="buscador" />
-            <span className="icono-lupa">
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </span>
-          </div>
-          <div className="iconos">
-            <a href="/">
-              <i className="fa-solid fa-house"></i>
-            </a>
-            <a href="/inicio">
-              <i className="fa-solid fa-bag-shopping"></i>
-            </a>
-            <a href="/carrito">
-              <i className="fa-solid fa-cart-shopping"></i>
-            </a>
-            <a href="/panel">
-              <i className="fa-solid fa-user"></i>
-            </a>
-            <a href="/login" className="iniciar-sesion">
-              Iniciar Sesión
-            </a>
-          </div>
-        </div>
-      </header>
+      <NavBar onOpenMenu={handleMenuOpen} />
 
       {/* Menú hamburguesa lateral */}
       <nav className={`hamburger-menu${menuOpen ? " active" : ""}`}>

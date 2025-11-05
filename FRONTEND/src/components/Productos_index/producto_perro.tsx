@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../../assets/css/producto_sele/Producto_selec.css";
+import NavBar from "../NavBar";
 
 const ProductoPerro: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,31 +33,7 @@ const ProductoPerro: React.FC = () => {
 
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header className="menu">
-        <div className="hamburger">
-          <i className="fa-solid fa-bars"></i>
-        </div>
-        <div className="logo">
-          <img src="/logo.png" alt="Josnishop Logo" />
-        </div>
-        <a href="/categorias" className="categorias">Categorías</a>
-        <div className="search-bar">
-          <input type="text" placeholder="Buscar" />
-          <i className="fa-solid fa-search"></i>
-        </div>
-        <nav className="nav-icons">
-          <a href="/"><i className="fa-solid fa-house"></i></a>
-          <a href="/inicio"><i className="fa-solid fa-bag-shopping"></i></a>
-          <a href="/carrito"><i className="fa-solid fa-cart-shopping"></i></a>
-          <a href="/panel">
-              <i className="fa-solid fa-user"></i>
-            </a>
-            <a href="/login" className="iniciar-sesion">
-              Iniciar Sesión
-            </a>
-        </nav>
-      </header>
+      <NavBar />
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="producto-container">
@@ -101,7 +78,6 @@ const ProductoPerro: React.FC = () => {
                 // Validar si el usuario está logueado (por ejemplo, si hay un token en localStorage)
                 const token = localStorage.getItem("token");
                 if (!token) {
-                  alert("Debes iniciar sesión para agregar productos al carrito.");
                   window.location.href = "/login";
                   return;
                 }
@@ -128,7 +104,7 @@ const ProductoPerro: React.FC = () => {
                   carrito.push(producto);
                 }
                 localStorage.setItem("carrito", JSON.stringify(carrito));
-                alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
+                window.location.href = "/carrito";
               }}
             >
               Agregar al carrito

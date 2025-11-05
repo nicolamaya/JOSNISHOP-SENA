@@ -317,6 +317,23 @@ body {
   transform: scale(1.05);
 }
 
+/* Action buttons container: inline, consistent sizing */
+.table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.table-actions button {
+  min-width: 120px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* =============================
     MODAL
 ============================= */

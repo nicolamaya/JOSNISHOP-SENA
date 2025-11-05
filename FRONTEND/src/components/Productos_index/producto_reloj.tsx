@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../../assets/css/producto_sele/Producto_selec.css"; // Ajusta la ruta a tu CSS
+import NavBar from "../NavBar";
 
 const Productoreloj: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -34,50 +35,7 @@ const Productoreloj: React.FC = () => {
 
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header className="menu">
-        <div className="hamburger">
-          <i className="fa-solid fa-bars"></i>
-        </div>
-
-        <div className="logo">
-          <img src="/logo.png" alt="Josnishop Logo" />
-        </div>
-
-        <a href="/categorias" className="categorias">Categorías</a>
-
-        <div className="search-bar">
-          <input type="text" placeholder="Buscar" />
-          <i className="fa-solid fa-search"></i>
-        </div>
-
-        <nav className="nav-icons">
-          <a href="/"><i className="fa-solid fa-house"></i></a>
-          <a href="/inicio"><i className="fa-solid fa-bag-shopping"></i></a>
-          <a href="/carrito"><i className="fa-solid fa-cart-shopping"></i></a>
-          {(() => {
-            const userName = localStorage.getItem("userName");
-            const userId = localStorage.getItem("userId");
-            if (userId) {
-              return (
-                <a href="/panel" className="user-session" style={{ display: 'flex', alignItems: 'center', fontWeight: 600, color: '#1b3a2b' }}>
-                  <i className="fa-solid fa-user" style={{ fontSize: 22, marginRight: 6 }}></i>
-                  <span style={{ fontSize: 16 }}>
-                    {userName ? `Hola, ${userName}` : 'Mi cuenta'}
-                  </span>
-                </a>
-              );
-            } else {
-              return (
-                <a href="/login" className="iniciar-sesion">
-                  <i className="fa-solid fa-user" style={{ marginRight: 6 }}></i>
-                  Iniciar Sesión
-                </a>
-              );
-            }
-          })()}
-        </nav>
-      </header>
+      <NavBar />
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="producto-container">
@@ -121,10 +79,9 @@ const Productoreloj: React.FC = () => {
             <button
               className="comprar-btn"
               onClick={() => {
-                // Validar si el usuario está logueado (por ejemplo, si hay un token en localStorage)
                 const token = localStorage.getItem("token");
                 if (!token) {
-                  alert("Debes iniciar sesión para agregar productos al carrito.");
+                  // not logged -> go to login
                   window.location.href = "/login";
                   return;
                 }
@@ -137,7 +94,7 @@ const Productoreloj: React.FC = () => {
                 };
                 const cantidad = parseInt((document.getElementById("cantidad-reloj") as HTMLInputElement).value) || 1;
                 const producto: ProductoCarrito = {
-                  id: 66, // <-- id numérico correcto
+                  id: 66,
                   nombre: "Reloj inteligente",
                   precio: 69990,
                   imagen: "src/assets/IMG/index/reloj.png",
@@ -151,7 +108,8 @@ const Productoreloj: React.FC = () => {
                   carrito.push(producto);
                 }
                 localStorage.setItem("carrito", JSON.stringify(carrito));
-                alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
+                // Navigate to cart so user can start managing it
+                window.location.href = "/carrito";
               }}
             >
               Agregar al carrito

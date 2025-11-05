@@ -238,3 +238,25 @@ body {
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
   object-fit: cover;
 }
+
+/* ===== Reseñas ===== */
+.resena-card {
+  background: #f8fff6;
+  border-radius: 10px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 4px rgba(30,188,124,0.06);
+}
+.resena-card strong {
+  color: #0a5c34;
+}
+.resena-card span {
+  margin-left: 8px;
+  color: #f7b500;
+}
+.resena-card p {
+  margin: 6px 0 2px 0;
+}
+.resena-card small {
+  color: #888;
+}

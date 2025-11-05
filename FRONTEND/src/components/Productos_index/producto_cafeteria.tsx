@@ -150,7 +150,7 @@ const ProductoCafeteria: React.FC = () => {
                   carrito.push(producto);
                 }
                 localStorage.setItem("carrito", JSON.stringify(carrito));
-                alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
+                window.location.href = "/carrito";
               }}
             >
               Agregar al carrito

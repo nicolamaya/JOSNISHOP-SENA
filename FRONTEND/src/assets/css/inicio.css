@@ -534,6 +534,16 @@ header {
   display: block;
 }
 
+.product-img-placeholder {
+  width: 170px;
+  height: 170px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  margin-bottom: 18px;
+  margin-top: 8px;
+}
+
 .precio {
   color: #fb2e01;
   font-weight: 700;
@@ -595,23 +605,191 @@ header {
   background: #46ae7d;
 }
 
+/* Botón flotante del chat */
 .chat-btn {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 28px;
+  right: 28px;
   background: #0a5c34;
   color: white;
-  font-size: 22px;
-  padding: 15px;
+  font-size: 28px;
+  padding: 18px;
   border-radius: 50%;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
   cursor: pointer;
+  border: none;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
 }
 
 .chat-btn:hover {
+  background: #159e65;
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(30,188,124,0.18);
+}
+
+/* Chatbox flotante mejorado */
+.chatbox-float {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  width: 340px;
+  max-width: 95vw;
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(30,188,124,0.18), 0 2px 8px rgba(0,0,0,0.10);
+  z-index: 1300;
+  display: flex;
+  flex-direction: column;
+  animation: chatbox-pop 0.35s cubic-bezier(.4,1.4,.6,1) both;
+  overflow: hidden;
+  transition: transform 0.32s cubic-bezier(.4,1.4,.6,1), opacity 0.32s;
+}
+
+@keyframes chatbox-pop {
+  0% { transform: scale(0.7) translateY(60px); opacity: 0; }
+  80% { transform: scale(1.04) translateY(-8px); opacity: 1; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.chatbox-float-closing {
+  transform: scale(0.7) translateY(60px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.32s cubic-bezier(.4,1.4,.6,1), opacity 0.32s;
+}
+
+.chatbox-header {
+  background: linear-gradient(90deg,#0b6a3d 0%, #19b77a 100%);
+  color: #fff;
+  padding: 12px 14px;
+  font-weight: 700;
+  font-size: 1.05em;
   display: flex;
   align-items: center;
-  gap: 20px;
+  justify-content: space-between;
+}
+
+.chatbox-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 1.5em;
+  cursor: pointer;
+  transition: color 0.2s;
+  margin-left: 10px;
+}
+
+.chatbox-close:hover {
+  color: #ffe082;
+}
+
+.chatbox-body {
+  padding: 14px 12px 10px 12px;
+  background: #f6fff7;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 80px;
+  max-height: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  scroll-behavior: smooth;
+}
+
+.chatbox-message {
+  background: #e6f9ee;
+  color: #222;
+  border-radius: 12px 12px 12px 4px;
+  padding: 10px 14px;
+  font-size: 1em;
+  max-width: 85%;
+  margin-bottom: 4px;
+  box-shadow: 0 1px 4px rgba(30,188,124,0.06);
+  opacity: 0;
+  animation: chat-msg-in 0.35s cubic-bezier(.4,1.4,.6,1) forwards;
+}
+
+@keyframes chat-msg-in {
+  0% { transform: translateY(20px) scale(0.95); opacity: 0; }
+  80% { transform: translateY(-4px) scale(1.04); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+.chatbox-message-bot {
+  align-self: flex-start;
+  background: #e6f9ee;
+  color: #1b3a2b;
+}
+
+.chatbox-message-user {
+  align-self: flex-end;
+  background: #d1f7e2;
+  color: #0a5c34;
+  border-radius: 12px 12px 4px 12px;
+}
+
+.chatbox-footer {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: transparent;
+  border-top: none;
+  gap: 8px;
+}
+
+.chatbox-footer input {
+  flex: 1;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 12px;
+  font-size: 0.98em;
+  background: rgba(255,255,255,0.95);
+  outline: none;
+  box-shadow: 0 1px 2px rgba(30,188,124,0.04);
+  transition: box-shadow 0.18s;
+}
+
+.chatbox-footer input:focus {
+  box-shadow: 0 2px 8px rgba(30,188,124,0.10);
+}
+
+.chatbox-send {
+  background: #19b77a;
+  border: none;
+  color: #fff;
+  border-radius: 18px;
+  width: 120px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.12s;
+}
+
+.chatbox-send:disabled {
+  background: #b8e7d2;
+  color: #fff;
+  cursor: not-allowed;
+}
+
+.chatbox-send:hover:not(:disabled) {
+  background: #139e5e;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .chatbox-float {
+    right: 8px;
+    bottom: 8px;
+    width: 98vw;
+    max-width: 98vw;
+  }
 }
 
 /* Estilos de desplazamiento */
@@ -637,21 +815,190 @@ header {
 
 /* Botones adicionales */
 .btn-cerrar-extra {
-  background: #0d7b46;
+  background: #0a5c34;
   color: white;
-  padding: 10px 22px;
+  padding: 12px 28px;
   border: none;
   border-radius: 25px;
   cursor: pointer;
-  font-size: 16px;
-  font-weight: normal;
-  transition: background 0.2s;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
-  margin-top: 30px;
+  font-size: 1.1em;
+  font-weight: 600;
+  transition: background 0.2s, transform 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px rgba(30,188,124,0.10);
+  margin: 0 auto;
+  display: block;
+}
+
+.btn-cerrar-extra:hover {
+  background: #159e65;
+  transform: scale(1.04);
+  box-shadow: 0 4px 16px rgba(30,188,124,0.18);
+}
+
+.cerrar-extra-container {
+  width: 100%;
   display: flex;
   justify-content: center;
+  margin-top: 20px;
+}
+
+/* Modal add product */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
   align-items: center;
-  margin-left: auto;
-  margin-right: auto;
-  width: fit-content;
+  justify-content: center;
+  z-index: 1400;
+}
+.modal-box {
+  background: linear-gradient(180deg,#ffffff 0%, #f8fff7 100%);
+  border-radius: 14px;
+  padding: 18px 20px;
+  width: 540px;
+  max-width: 96vw;
+  box-shadow: 0 18px 50px rgba(12,42,20,0.18);
+  border: 1px solid rgba(10,92,52,0.06);
+  transform: translateY(10px) scale(0.98);
+  animation: modal-pop 360ms cubic-bezier(.2,.9,.3,1) both;
+  /* do not force huge min-height; allow internal scrolling */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  max-height: 80vh; /* limit modal height to viewport */
+  overflow: hidden; /* hide outer overflow; inner .modal-form will scroll */
+}
+.modal-box::before{content:'';position:absolute;left:0;right:0;top:0;height:6px;border-top-left-radius:14px;border-top-right-radius:14px;background:linear-gradient(90deg,#0bb176,#0a5c34);opacity:0.06}
+.modal-box{position:relative}
+.modal-header { display:block; text-align:center; margin-bottom:12px; padding-top:6px }
+.modal-header h3 { margin:0; font-size:1.4rem; color:#0a5c34; font-weight:800 }
+.modal-close { position:absolute; right:18px; top:14px; background:#e74c3c; border:none; width:40px; height:40px; border-radius:50%; font-size:18px; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,0.08); display:flex; align-items:center; justify-content:center; color:#fff }
+.modal-close:hover{transform:scale(1.05)}
+.modal-form label { display:block; margin-top:8px; font-weight:600; text-align:center }
+.modal-form input[type="text"], .modal-form input[type="number"], .modal-form textarea, .modal-form input[type="file"], .modal-form select {
+  width:88%; max-width:460px; padding:12px 14px; border-radius:12px; border:1px solid #e6e6e6; box-sizing:border-box; margin-top:6px; background:#fff; font-size:14px; color:#13331f; display:block; margin-left:auto; margin-right:auto
+}
+.modal-form textarea { min-height:120px }
+
+/* modal form container: center fields and keep uniform width */
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 6px 8px;
+  box-sizing: border-box;
+  /* make the form scroll when content is too tall */
+  max-height: calc(80vh - 140px); /* reserve space for header and footer */
+  overflow-y: auto;
+}
+
+/* scrollbar for modal form */
+.modal-form::-webkit-scrollbar { width: 8px }
+.modal-form::-webkit-scrollbar-thumb { background: rgba(11,177,118,0.12); border-radius: 6px }
+.modal-form::-webkit-scrollbar-track { background: transparent }
+
+/* Ensure inputs that use the .modal-input class match the default modal input sizing/style */
+.modal-input {
+  width:88%;
+  max-width:460px;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1px solid #e6e6e6;
+  box-sizing:border-box;
+  margin-top:6px;
+  background:#fff;
+  font-size:14px;
+  color:#13331f;
+  display:block;
+}
+.modal-input:focus { outline: none; box-shadow: 0 4px 14px rgba(11,177,118,0.10); border-color: #0bb176 }
+
+/* Default to single column so fields match Nombre */
+.modal-form > div { display:block }
+.modal-form > div > div { flex:unset }
+.modal-form .small { width:88%; max-width:460px }
+
+/* Row for small inputs (cantidad/stock) */
+.row-small { display:flex; gap:12px; justify-content:center; align-items:flex-start; width:88%; max-width:460px; margin:0 auto }
+.modal-input-small { width:160px; padding:10px 12px; border-radius:12px; border:1px solid #e6e6e6; background:#fff }
+
+/* File input look */
+.modal-form input[type="file"] { padding:8px }
+
+/* preview */
+.modal-form img{border-radius:10px; max-height:220px; object-fit:cover; display:block}
+/* Buttons inside modal */
+
+.btn-primary {
+  background: linear-gradient(90deg,#14c27f 0%, #0bb176 40%, #159e65 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 28px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(11,177,118,0.18);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 36px rgba(11,177,118,0.18) }
+
+.btn-secondary {
+  background: linear-gradient(90deg,#b80636 0%, #6c0c21 100%);
+  color: #fff;
+  border: none;
+  padding: 12px 22px;
+  border-radius: 28px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(10,92,52,0.12);
+}
+.btn-secondary:hover { transform: translateY(-1px); opacity: 0.98 }
+
+@keyframes modal-pop {
+  0% { transform: translateY(18px) scale(.96); opacity: 0 }
+  60% { transform: translateY(-6px) scale(1.02); opacity: 1 }
+  100% { transform: translateY(0) scale(1); opacity: 1 }
+}
+
+
+/* Botón flotante para subir (visible solo para vendedores) */
+.up-btn {
+  position: fixed;
+  bottom: 28px;
+  right: 112px; /* un poco más pegado al botón de chat */
+  background: #0a5c34;
+  color: white;
+  /* Igual tamaño visual que .chat-btn */
+  font-size: 28px;
+  padding: 18px;
+  border-radius: 50%;
+  /* misma sombra para que parezcan iguales */
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+  border: none;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.18s;
+}
+
+.up-btn:hover {
+  background: #159e65;
+  transform: scale(1.08);
+  box-shadow: 0 8px 24px rgba(30,188,124,0.18);
+}
+
+/* Ajuste responsive: evitar solapamiento en pantallas pequeñas */
+@media (max-width: 600px) {
+  .up-btn {
+    right: 80px; /* mueve ligeramente para no solaparse con el chat en móvil */
+    padding: 14px;
+    font-size: 22px;
+  }
 }

@@ -24,6 +24,7 @@ import ProductoPlay from "./components/Productos_index/producto_play";
 import ProductoSofa from "./components/Productos_index/producto_sofa";
 import ProductoZapatillas from "./components/Productos_index/producto_zapatillas";
 import ProductoLienzo from "./components/Productos_index/producto_lienzo";
+import ProductoDetalle from "./components/Productos_index/ProductoDetalle";
 import Carrito from './pages/carrito.tsx';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResenasPanel from "./components/panel/resenas.tsx";
@@ -55,6 +56,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/ProductoSofa" element={<ProductoSofa />} />
         <Route path="/ProductoZapatillas" element={<ProductoZapatillas />} />
         <Route path="/ProductoLienzo" element={<ProductoLienzo />} />
+  <Route path="/producto/:id" element={<ProductoDetalle />} />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/reseñas/:productoId" element={<ResenasPanel productoId={0} esVendedor={false} />} />
         <Route path="/ventas" element={<Ventas />} />

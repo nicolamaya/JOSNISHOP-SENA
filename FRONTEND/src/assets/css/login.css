@@ -176,6 +176,84 @@ button[type="submit"]:hover {
   background: #159e65;
 }
 
+/* Para register.css y login.css */
+.registro-password-wrapper,
+.login-password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.registro-password-toggle,
+.login-password-toggle {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b89c6e;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s, transform 0.2s;
+}
+
+.registro-password-toggle:hover,
+.login-password-toggle:hover,
+.registro-password-toggle:focus,
+.login-password-toggle:focus {
+  color: #645853;
+  transform: scale(1.15);
+}
+
+.login-password-wrapper {
+  width: 100%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px; /* igual que los otros campos */
+}
+
+.login-password-wrapper input {
+  width: 100%;
+  box-sizing: border-box;
+  padding-right: 2.5rem; /* espacio para el ojito */
+  padding-left: 16px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border: 1.5px solid #ccc;
+  border-radius: 10px;
+  font-size: 1.08rem;
+  background: #fff;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.login-password-wrapper input:focus {
+  border: 1.5px solid #6fdcbf;
+}
+
+.login-password-toggle {
+  position: absolute;
+  right: 0.8rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #b89c6e;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  top: 0;
+  bottom: 0;
+}
+
+.login-password-toggle:hover,
+.login-password-toggle:focus {
+  color: #645853;
+  transform: scale(1.15);
+}
+
 /* ==============================
  RESPONSIVE PARA MÓVILES
  ============================== */

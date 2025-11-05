@@ -28,6 +28,9 @@ const Pedidos: React.FC<PedidosProps> = ({ setSelectedPedidoId }) => {
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Modal state for editing pedido status
+  const [editingPedido, setEditingPedido] = useState<Pedido | null>(null);
+  const [nuevoEstadoModal, setNuevoEstadoModal] = useState<string>("Procesando");
 
   const userId = localStorage.getItem("userId");
   // El vendedor es solo el usuario con id 1
@@ -70,6 +73,27 @@ const Pedidos: React.FC<PedidosProps> = ({ setSelectedPedidoId }) => {
     }
   };
 
+  const abrirEditarEstado = (pedido: Pedido) => {
+    setEditingPedido(pedido);
+    setNuevoEstadoModal(pedido.estado);
+  };
+
+  const cerrarEditarEstado = () => {
+    setEditingPedido(null);
+  };
+
+  const guardarEstado = async () => {
+    if (!editingPedido) return;
+    try {
+      await axios.put(`http://localhost:8000/pedidos/${editingPedido.id_pedido}`, { estado: nuevoEstadoModal });
+      setPedidos(prev => prev.map(p => p.id_pedido === editingPedido.id_pedido ? { ...p, estado: nuevoEstadoModal } : p));
+      cerrarEditarEstado();
+    } catch (err) {
+      console.error('Error al actualizar estado:', err);
+      alert('Error al actualizar estado');
+    }
+  };
+
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       <h1 className="page-title">Mis Pedidos</h1>
@@ -102,20 +126,24 @@ const Pedidos: React.FC<PedidosProps> = ({ setSelectedPedidoId }) => {
                   <td>${pedido.total.toFixed(2)}</td>
                   {userId === "1" && <td>{pedido.cliente_id}</td>}
                   <td>
-                    {userId === "1" && (
-                      <>
-                        <button className="btn-delete" onClick={() => handleDelete(pedido.id_pedido)}>
-                          Eliminar
-                        </button>
-                        <EditarEstadoPedidoButton pedido={pedido} setPedidos={setPedidos} />
-                      </>
-                    )}
-                    <button
-                      className="btn-add"
-                      onClick={() => setSelectedPedidoId(pedido.id_pedido)}
-                    >
-                      Ver detalle
-                    </button>
+                    <div className="table-actions">
+                      {userId === "1" && (
+                        <>
+                          <button className="btn-delete" onClick={() => handleDelete(pedido.id_pedido)}>
+                            Eliminar
+                          </button>
+                          <button className="btn-edit" onClick={() => abrirEditarEstado(pedido)}>
+                            Editar estado
+                          </button>
+                        </>
+                      )}
+                      <button
+                        className="btn-add"
+                        onClick={() => setSelectedPedidoId(pedido.id_pedido)}
+                      >
+                        Ver detalle
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))}
@@ -123,52 +151,26 @@ const Pedidos: React.FC<PedidosProps> = ({ setSelectedPedidoId }) => {
           </table>
         </div>
       )}
+      {editingPedido && (
+        <div className="modal-overlay">
+          <motion.div className="modal" initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
+            <h2>Editar estado del pedido #{editingPedido.id_pedido}</h2>
+            <label>Estado</label>
+            <select value={nuevoEstadoModal} onChange={e => setNuevoEstadoModal(e.target.value)}>
+              <option value="Procesando">Procesando</option>
+              <option value="En camino">En camino</option>
+              <option value="Entregado">Entregado</option>
+              <option value="Cancelado">Cancelado</option>
+            </select>
+            <div className="modal-buttons" style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+              <button className="btn-save" onClick={guardarEstado}>Guardar</button>
+              <button className="btn-delete" onClick={cerrarEditarEstado}>Cancelar</button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export default Pedidos;
-
-// Solo el vendedor puede editar el estado del pedido
-interface EditarEstadoPedidoButtonProps {
-  pedido: Pedido;
-  setPedidos: React.Dispatch<React.SetStateAction<Pedido[]>>;
-}
-
-const EditarEstadoPedidoButton: React.FC<EditarEstadoPedidoButtonProps> = ({ pedido, setPedidos }) => {
-  const [show, setShow] = useState(false);
-  const [nuevoEstado, setNuevoEstado] = useState(pedido.estado);
-  const [loading, setLoading] = useState(false);
-
-  const opciones = ["Procesando", "En camino", "Entregado", "Cancelado"];
-
-  const handleUpdate = async () => {
-    setLoading(true);
-    try {
-      await axios.put(`http://localhost:8000/pedidos/${pedido.id_pedido}`, { estado: nuevoEstado });
-      setPedidos(prev => prev.map(p => p.id_pedido === pedido.id_pedido ? { ...p, estado: nuevoEstado } : p));
-      setShow(false);
-    } catch {
-      alert("Error al actualizar estado");
-    }
-    setLoading(false);
-  };
-
-  return show ? (
-    <span style={{ marginLeft: 8 }}>
-      <select value={nuevoEstado} onChange={e => setNuevoEstado(e.target.value)}>
-        {opciones.map(op => <option key={op} value={op}>{op}</option>)}
-      </select>
-      <button className="btn-save" onClick={handleUpdate} disabled={loading} style={{ marginLeft: 4 }}>
-        Guardar
-      </button>
-      <button className="btn-cancel" onClick={() => setShow(false)} style={{ marginLeft: 4 }}>
-        Cancelar
-      </button>
-    </span>
-  ) : (
-    <button className="btn-edit" style={{ marginLeft: 8 }} onClick={() => setShow(true)}>
-      Editar estado
-    </button>
-  );
-};
