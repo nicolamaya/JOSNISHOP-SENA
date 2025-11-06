@@ -1,48 +1,38 @@
-# Importamos las herramientas principales de FastAPI y SQLAlchemy.
-# APIRouter: Para agrupar las rutas de la API.
-# Depends: Para gestionar la inyección de dependencias (la sesión de la DB).
-# HTTPException: Para lanzar errores HTTP.
 from fastapi import APIRouter, Depends, HTTPException
-# Session: Para el tipado de la variable de sesión.
 from sqlalchemy.orm import Session
-# Importamos la función que crea la sesión de la base de datos.
 from db.database import get_db
-# Importamos el modelo de SQLAlchemy que se mapea a la tabla 'pagos'.
 from models.pagos import Pago
+from dtos.pago_dto import PagoCreate, PagoOut
+from utils.crypto_utils import encrypt_data, decrypt_data
 
-# Creamos un enrutador para definir los endpoints.
 router = APIRouter()
 
-# --- Endpoint para crear un pago (POST) ---
-# Define un endpoint que responde a peticiones POST en "/pagos".
-# NOTA: `pago: dict` no valida los datos de entrada. Esto es un riesgo de seguridad.
-# Se recomienda usar un modelo Pydantic para validar y estructurar los datos de forma segura.
-@router.post("/pagos")
-def crear_pago(pago: dict, db: Session = Depends(get_db)):
-    # Creamos una instancia del modelo 'Pago' con los datos del diccionario 'pago'.
-    # Como no hay validación, si el diccionario no tiene las claves correctas, esto fallará.
+@router.post("/pagos", response_model=PagoOut)
+def crear_pago(pago: PagoCreate, db: Session = Depends(get_db)):
+    # Ciframos los datos sensibles
     nuevo_pago = Pago(
-        id_usuario=pago["id_usuario"],
-        nombre_tarjeta=pago["nombre_tarjeta"],
-        numero_tarjeta=pago["numero_tarjeta"],
-        fecha_expiracion=pago["fecha_expiracion"],
-        cvv=pago["cvv"]
+        id_usuario=pago.id_usuario,
+        nombre_tarjeta=encrypt_data(pago.nombre_tarjeta),
+        numero_tarjeta=encrypt_data(pago.numero_tarjeta),
+        fecha_expiracion=encrypt_data(pago.fecha_expiracion),
+        cvv=encrypt_data(pago.cvv)
     )
     
-    # Agregamos el nuevo objeto a la sesión.
     db.add(nuevo_pago)
-    # Guardamos el objeto en la base de datos.
     db.commit()
-    # Recargamos el objeto para obtener el ID asignado por la base de datos.
     db.refresh(nuevo_pago)
     
-    # Devolvemos una respuesta de éxito con un mensaje y el ID del pago.
-    return {"mensaje": "Pago guardado", "id_pago": nuevo_pago.id_pago}
+    # Desciframos los datos para la respuesta
+    return PagoOut(
+        id_pago=nuevo_pago.id_pago,
+        id_usuario=nuevo_pago.id_usuario,
+        nombre_tarjeta=decrypt_data(nuevo_pago.nombre_tarjeta),
+        numero_tarjeta="*" * 12 + decrypt_data(nuevo_pago.numero_tarjeta)[-4:],  # Solo mostramos los últimos 4 dígitos
+        fecha_expiracion=decrypt_data(nuevo_pago.fecha_expiracion),
+        cvv="***"  # Nunca mostramos el CVV completo
+    )
 
-# --- Endpoint para obtener el último método de pago de un usuario (GET) ---
-# Define un endpoint que responde a peticiones GET en la ruta.
-# `{usuario_id}` es un parámetro de la URL.
-@router.get("/usuarios/{usuario_id}/metodo-pago")
+@router.get("/usuarios/{usuario_id}/metodo-pago", response_model=PagoOut)
 def obtener_metodo_pago(usuario_id: int, db: Session = Depends(get_db)):
     # Buscamos el método de pago más reciente para un usuario.
     # `.filter(Pago.id_usuario == usuario_id)`: Filtra por el ID del usuario.
@@ -55,9 +45,15 @@ def obtener_metodo_pago(usuario_id: int, db: Session = Depends(get_db)):
     if not pago:
         raise HTTPException(status_code=404, detail="No hay método de pago guardado")
         
-    # Devolvemos la información del pago.
-    # NOTA DE SEGURIDAD CRÍTICA: Devolver el número de tarjeta y el CVV en una respuesta
-    # es un riesgo de seguridad muy alto. Estos datos nunca deben ser expuestos.
+    # Devolvemos la información del pago con los campos requeridos
+    return PagoOut(
+        id_pago=pago.id_pago,
+        id_usuario=pago.id_usuario,
+        nombre_tarjeta=decrypt_data(pago.nombre_tarjeta),
+        numero_tarjeta="*" * 12 + decrypt_data(pago.numero_tarjeta)[-4:],  # Solo mostramos los últimos 4 dígitos
+        fecha_expiracion=decrypt_data(pago.fecha_expiracion),
+        cvv="***"  # Nunca mostramos el CVV completo
+    )
     # En un entorno real, solo se debería devolver información parcial (ej. los últimos 4 dígitos)
     # o un token de pago.
     return {

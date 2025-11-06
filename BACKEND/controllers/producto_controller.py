@@ -8,6 +8,8 @@ from models.producto import Producto
 from models.item import Item
 from models.inventario import Inventario
 from models.videos import Video
+from models.categoria import Categoria
+from sqlalchemy import func
 import os
 import uuid
 import datetime
@@ -40,17 +42,49 @@ def listar_productos(db: Session = Depends(get_db)):
 
 @router.get("/rich")
 def listar_productos_rich(db: Session = Depends(get_db)):
-    """Return products with one thumbnail URL and a price (from first item) for frontend cards."""
-    productos = db.query(Producto).all()
+    """Return the latest products with thumbnail and price for frontend cards, ordered by creation date descending."""
+    productos = db.query(Producto).order_by(Producto.id.desc()).all()
     out = []
     for p in productos:
         img = None
         price = None
-        # pick first video/url if exists
         if getattr(p, 'videos', None):
             if len(p.videos) > 0:
                 img = p.videos[0].url
-        # pick first item price if exists
+        if getattr(p, 'items', None):
+            if len(p.items) > 0:
+                try:
+                    price = float(p.items[0].precio)
+                except Exception:
+                    price = None
+        out.append({
+            "id": p.id,
+            "nombre": p.nombre,
+            "descripcion": p.descripcion or "",
+            "precio": price,
+            "image": img,
+            "categoria": p.categoria_id
+        })
+    return out
+
+
+@router.get("/categoria/{categoria_name}/rich")
+def listar_productos_por_categoria_rich(categoria_name: str, db: Session = Depends(get_db)):
+    """Return products for a given category name with thumbnail and price for frontend cards."""
+    # case-insensitive match on category name
+    productos = (
+        db.query(Producto)
+        .join(Categoria)
+        .filter(func.lower(Categoria.nombre) == categoria_name.lower())
+        .all()
+    )
+    out = []
+    for p in productos:
+        img = None
+        price = None
+        if getattr(p, 'videos', None):
+            if len(p.videos) > 0:
+                img = p.videos[0].url
         if getattr(p, 'items', None):
             if len(p.items) > 0:
                 try:
