@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Eye, EyeOff } from "lucide-react"; // <-- Agrega esto
 import { useNavigate } from "react-router-dom";
 import "../assets/css/login.css";
 
@@ -8,6 +9,7 @@ const Login: React.FC = () => {
   const [contraseña, setContraseña] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [intentosFallidos, setIntentosFallidos] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
   const MAX_INTENTOS = 5;
   const navigate = useNavigate();
 
@@ -158,14 +160,26 @@ const Login: React.FC = () => {
           <label htmlFor="contraseña">
             Contraseña <span style={{ color: "red" }}>*</span>
           </label>
+          <div className="login-password-wrapper">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="contraseña"
             placeholder="Tu contraseña"
             value={contraseña}
             onChange={(e) => setContraseña(e.target.value)}
             required
+            autoComplete="current-password"
           />
+          <button
+            type="button"
+            className="login-password-toggle"
+            onClick={() => setShowPassword(!showPassword)}
+            tabIndex={0}
+            aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+          >
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+          </button>
+        </div>
           <button type="submit">Continuar</button>
           <div>{mensaje}</div>
         </form>

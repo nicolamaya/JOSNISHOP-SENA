@@ -21,8 +21,10 @@ class UsuarioUpdate(BaseModel):
     rol_id: Optional[int] = None
 
 
+
 class UsuarioOut(UsuarioBase):
     id_usuario: int
+    estado: int  # 0 = inactivo, 1 = activo
 
     class Config:
         from_attributes = True

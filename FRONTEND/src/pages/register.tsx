@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react"; // <-- Agrega esto
 import "../assets/css/register.css";
 import video from "../assets/IMG/inicio_video.mp4";
 
@@ -15,6 +16,8 @@ const Registro: React.FC = () => {
   const [success, setSuccess] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (
@@ -33,6 +36,17 @@ const Registro: React.FC = () => {
     setSuccess("");
     if (!acceptedTerms) {
       setError("Debes aceptar los términos y condiciones para continuar.");
+      return;
+    }
+    // Validación de contraseña: mínimo 8 caracteres, una mayúscula, un número y un símbolo
+    const validatePassword = (pwd: string) => {
+      const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'".,<>\/\\?\\|`~]).{8,}$/;
+      return re.test(pwd);
+    };
+    if (!validatePassword(formData.password)) {
+      setError(
+        "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un símbolo."
+      );
       return;
     }
     if (formData.password !== formData.confirmPassword) {
@@ -130,30 +144,60 @@ const Registro: React.FC = () => {
           <label htmlFor="password">
             Contraseña <span style={{ color: "red" }}>*</span>
           </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Crea una contraseña"
-            required
-            value={formData.password}
-            onChange={handleChange}
-            className="registro-input-field"
-          />
+          <div className="registro-password-wrapper">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              placeholder="Crea una contraseña"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              className="registro-input-field"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="registro-password-toggle"
+              onClick={() => setShowPassword(!showPassword)}
+              tabIndex={0}
+              aria-label={
+                showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+              }
+            >
+              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           <label htmlFor="confirmPassword">
             Confirmar contraseña <span style={{ color: "red" }}>*</span>
           </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            placeholder="Repite la contraseña"
-            required
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="registro-input-field"
-          />
+          <div className="registro-password-wrapper">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="Repite la contraseña"
+              required
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              className="registro-input-field"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="registro-password-toggle"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              tabIndex={0}
+              aria-label={
+                showConfirmPassword
+                  ? "Ocultar contraseña"
+                  : "Mostrar contraseña"
+              }
+            >
+              {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
+          </div>
 
           <div className="registro-terms-container">
             <input
@@ -177,7 +221,7 @@ const Registro: React.FC = () => {
                   e.preventDefault();
                   setShowModal(true);
                 }}
-              ><br />
+              >
                 Términos y Condiciones y Política de Privacidad
               </a>
             </label>
@@ -200,7 +244,14 @@ const Registro: React.FC = () => {
       {/* Sección izquierda: video */}
       <div className="registro-left">
         <div className="registro-gallery">
-          <video src={video} autoPlay loop muted playsInline className="registro-video"></video>
+          <video
+            src={video}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="registro-video"
+          ></video>
         </div>
       </div>
 

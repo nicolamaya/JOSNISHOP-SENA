@@ -86,6 +86,24 @@ def listar_inventarios(db: Session = Depends(get_db)):
     return db.query(Inventario).all()
 
 
+# --- Endpoint de Reportes Parametrizados para Inventario ---
+@router.get("/reportes", response_model=List[InventarioOut])
+def reportes_parametrizados_inventario(
+    producto_id: Optional[int] = Query(None),
+    cantidad_min: Optional[int] = Query(None),
+    cantidad_max: Optional[int] = Query(None),
+    db: Session = Depends(get_db)
+):
+    query = db.query(Inventario)
+    if producto_id:
+        query = query.filter(Inventario.producto_id == producto_id)
+    if cantidad_min is not None:
+        query = query.filter(Inventario.cantidad >= cantidad_min)
+    if cantidad_max is not None:
+        query = query.filter(Inventario.cantidad <= cantidad_max)
+    return query.all()
+
+
 
 ### 3. Obtener un registro de inventario por ID (GET)
 
@@ -162,24 +180,6 @@ def eliminar_inventario(inventario_id: int, db: Session = Depends(get_db)):
 
 
 ## Endpoints Adicionales
-
-# --- Endpoint de Reportes Parametrizados para Inventario ---
-@router.get("/reportes", response_model=List[InventarioOut])
-def reportes_parametrizados_inventario(
-    producto_id: Optional[int] = Query(None),
-    cantidad_min: Optional[int] = Query(None),
-    cantidad_max: Optional[int] = Query(None),
-    db: Session = Depends(get_db)
-):
-    query = db.query(Inventario)
-    if producto_id:
-        query = query.filter(Inventario.producto_id == producto_id)
-    if cantidad_min is not None:
-        query = query.filter(Inventario.cantidad >= cantidad_min)
-    if cantidad_max is not None:
-        query = query.filter(Inventario.cantidad <= cantidad_max)
-    return query.all()
-# Comentario: Endpoint de reportes parametrizados para inventario.
 
 # --- Endpoint de Carga Masiva de Inventario ---
 @router.post("/bulk", response_model=List[InventarioOut])

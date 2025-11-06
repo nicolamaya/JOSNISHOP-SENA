@@ -22,6 +22,9 @@ import Pedidos from "../components/panel/Pedidos";
 import Detalle from "../components/panel/detalle";
 import ResenasPanel from "../components/panel/resenas";
 import Ventas from "../components/panel/Ventas"; // Asegúrate de importar tu componente Ventas
+import Terminos from "../components/panel/Terminos";
+import ChatbotResponses from "../components/panel/ChatbotResponses";
+import UserRoles from "../components/panel/UserRoles";
 
 // ===================
 // Panel Principal
@@ -195,11 +198,9 @@ const Panel: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="table-container">
-                {productoId && (
-                  <ResenasPanel productoId={productoId} esVendedor={false} />
-                )}
-              </div>
+              {productoId && (
+                <ResenasPanel productoId={productoId} esVendedor={false} />
+              )}
             </motion.div>
           );
         }
@@ -208,16 +209,23 @@ const Panel: React.FC = () => {
           return (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
               <h1 className="page-title">Reseñas de tus productos</h1>
-              <div className="table-container">
-                {/* Pasa el vendedorId (userId) y esVendedor=true */}
-                <ResenasPanel vendedorId={Number(userId)} esVendedor={true} />
-              </div>
+              {/* Pasa el vendedorId (userId) y esVendedor=true */}
+              <ResenasPanel vendedorId={Number(userId)} esVendedor={true} />
             </motion.div>
           );
         }
         return <h1>No tienes acceso a reseñas</h1>;
       case "ventas":
         return <Ventas />; // Aquí irá tu componente Ventas.tsx
+      case "terminos":
+        return <Terminos />;
+      case "chatbot":
+        // Solo vendedores tienen acceso a CRUD de respuestas
+        if (userRole === "vendedor") return <ChatbotResponses />;
+        return <h1>No tienes permiso para ver esta sección</h1>;
+      case "usuarios":
+        if (userRole === "vendedor") return <UserRoles />;
+        return <h1>No tienes permiso para ver esta sección</h1>;
       default:
         return <h1 className="page-title">Selecciona una opción</h1>;
     }
@@ -356,6 +364,44 @@ const Panel: React.FC = () => {
             >
               <Star size={18} /> Reseñas
             </button>
+          )}
+
+          {/* Términos - visible para todos los roles */}
+          <button
+            onClick={() => {
+              setActivePage("terminos");
+              setSelectedPedidoId(null);
+              setIsSidebarOpen(false);
+            }}
+            className="menu-item"
+          >
+            <FileText size={18} /> Términos
+          </button>
+
+          {/* Opciones solo para vendedor: CRUD chatbot y gestión de roles */}
+          {userRole === "vendedor" && (
+            <>
+              <button
+                onClick={() => {
+                  setActivePage("chatbot");
+                  setSelectedPedidoId(null);
+                  setIsSidebarOpen(false);
+                }}
+                className="menu-item"
+              >
+                <Package size={18} /> Chatbot
+              </button>
+              <button
+                onClick={() => {
+                  setActivePage("usuarios");
+                  setSelectedPedidoId(null);
+                  setIsSidebarOpen(false);
+                }}
+                className="menu-item"
+              >
+                <User size={18} /> Usuarios
+              </button>
+            </>
           )}
 
           <p className="logout" onClick={handleLogout}>

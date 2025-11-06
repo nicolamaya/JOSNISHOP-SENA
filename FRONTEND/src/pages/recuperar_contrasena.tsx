@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "../assets/css/recuperar.css";
-import logo from "/public/logo.png";
+import logo from "/logo.png";
 import video from "../assets/IMG/inicio_video.mp4";
 
 const RecuperarContrasena: React.FC = () => {

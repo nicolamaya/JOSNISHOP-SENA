@@ -11,6 +11,193 @@ const Inicio: React.FC = () => {
   const [showMore, setShowMore] = useState(false);
   const [busqueda, setBusqueda] = useState("");
   const [busquedaActiva, setBusquedaActiva] = useState(""); // Nuevo estado
+  // Configuración del chat box (ajústala según necesites)
+  const chatConfig = {
+    welcomeMessage: '¡Hola! ¿En qué podemos ayudarte hoy?',
+    maxLength: 250,
+    responseDelay: 900, // milisegundos
+    autoOpen: true
+  };
+
+  // Chat types, state y refs
+  type ChatMessage = { from: 'bot' | 'user'; text: string };
+  const [chatOpen, setChatOpen] = useState<boolean>(chatConfig.autoOpen);
+  const [chatInput, setChatInput] = useState("");
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([
+    { from: "bot", text: chatConfig.welcomeMessage }
+  ]);
+  const chatBodyRef = useRef<HTMLDivElement>(null);
+  const [closing, setClosing] = useState(false);
+
+  // Enviar mensaje (usado en el form) -> ahora llama al backend /bot/respond
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
+  const [waPhone, setWaPhone] = useState<string | null>(null);
+  const [lastUserMessage, setLastUserMessage] = useState<string | null>(null);
+  // Determina si el usuario es vendedor (rol id === "1")
+  const isSeller = (localStorage.getItem("role") || "") === "1";
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [formNombre, setFormNombre] = useState("");
+  const [formDescripcion, setFormDescripcion] = useState("");
+  const [formPrecio, setFormPrecio] = useState("");
+  const [formCantidad, setFormCantidad] = useState(1);
+  const [formStockMinimo, setFormStockMinimo] = useState(1);
+  const [formCategoriaId, setFormCategoriaId] = useState(1);
+  const [formDisponible, setFormDisponible] = useState(true);
+  const [formFile, setFormFile] = useState<File | null>(null);
+  const [categories, setCategories] = useState<Array<{id:number,name:string}>>([]);
+  // Handlers para el modal
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files && e.target.files[0];
+    if (f) setFormFile(f);
+  };
+
+  useEffect(() => {
+    // cargar categorias desde backend para el select
+    (async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/categorias/');
+        if (!res.ok) return;
+        const data = await res.json();
+        // data debería ser array de categorias con {id, nombre}
+        setCategories(data.map((c:any) => ({ id: c.id, name: c.nombre || c.name || String(c.id) })));
+      } catch (err) {
+        console.error('No se pudieron cargar categorías', err);
+      }
+    })();
+  }, []);
+
+  const handleSubmitAddProduct = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    try {
+      const vendedorId = Number(localStorage.getItem('userId')) || null;
+      const formData = new FormData();
+      formData.append('nombre', formNombre);
+      formData.append('categoria_id', String(formCategoriaId));
+      formData.append('descripcion', formDescripcion);
+      formData.append('precio', String(parseFloat(formPrecio || '0')));
+      formData.append('cantidad', String(formCantidad));
+      formData.append('stock_minimo', String(formStockMinimo));
+      formData.append('disponible', String(formDisponible));
+      if (vendedorId) formData.append('vendedor_id', String(vendedorId));
+      if (formFile) formData.append('file', formFile);
+
+      const res = await fetch('http://127.0.0.1:8000/productos/full', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const txt = await res.text();
+        alert('Error al crear producto: ' + txt);
+        return;
+      }
+      const data = await res.json();
+      // éxito
+      alert('Producto creado. ID: ' + data.producto_id);
+      // limpiar y cerrar modal
+      setFormNombre('');
+      setFormDescripcion('');
+      setFormPrecio('');
+      setFormCantidad(1);
+      setFormStockMinimo(1);
+      setFormFile(null);
+      setShowAddModal(false);
+      // Recargar productos sin recargar la página
+      try {
+        const res2 = await fetch('http://127.0.0.1:8000/productos/rich');
+        if (res2.ok) {
+          const data2 = await res2.json();
+          const mapped = data2.map((p: any) => {
+            let imgUrl: string | null = null;
+            if (p.image) {
+              const v = String(p.image).trim();
+              if (v.startsWith('http://') || v.startsWith('https://') || v.startsWith('//')) {
+                imgUrl = v;
+              } else {
+                imgUrl = `http://127.0.0.1:8000${v}`;
+              }
+            }
+            return {
+              id: p.id,
+              nombre: p.nombre,
+              descripcion: p.descripcion,
+              precio: p.precio ? `$${Number(p.precio).toLocaleString('es-CO')} COP` : null,
+              img: imgUrl,
+              link: `/producto/${p.id}`,
+              categoria: '',
+            };
+          });
+          setProductos(mapped);
+        }
+      } catch (err) {
+        console.error('Error recargando productos', err);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error al crear producto');
+    }
+  };
+  const handleSend = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const text = chatInput.trim();
+    if (!text) return;
+  // prepare history for AI context (include the new user message)
+  const recent = chatMessages.slice(-5)
+  const history = [...recent, { from: 'user', text }]
+  // mostrar mensaje del usuario
+  setChatMessages(prev => [...prev, { from: 'user', text }]);
+  setLastUserMessage(text);
+    setChatInput("");
+    setWhatsappUrl(null);
+
+    try {
+      const userId = Number(localStorage.getItem('userId')) || null;
+      const res = await fetch('http://127.0.0.1:8000/bot/respond', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ usuario_origen: userId, mensaje: text, history })
+      });
+      if (!res.ok) throw new Error('Network response not ok');
+      const data = await res.json();
+      // respuesta del bot
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, { from: 'bot', text: data.texto || 'No hubo respuesta.' }]);
+        if (data.fallback && data.whatsapp_url) setWhatsappUrl(data.whatsapp_url);
+      }, chatConfig.responseDelay);
+    } catch {
+      // fallback local si falla la conexión
+      setTimeout(() => {
+        setChatMessages(prev => [...prev, { from: 'bot', text: '¡Gracias por tu mensaje! Pronto te responderemos.' }]);
+      }, chatConfig.responseDelay);
+    }
+  };
+
+  // fetch whatsapp phone/url from backend so the page can build wa links when needed
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/bot/wa');
+        if (!res.ok) return;
+        const d = await res.json();
+        if (!mounted) return;
+        if (d.whatsapp_url) setWhatsappUrl(d.whatsapp_url);
+        if (d.phone) setWaPhone(d.phone);
+      } catch {
+        // ignore
+      }
+    })();
+    return () => { mounted = false; };
+  }, []);
+
+  const handleCloseChat = () => {
+    setClosing(true);
+    setTimeout(() => {
+      setChatOpen(false);
+      setClosing(false);
+      setChatInput("");
+      setChatMessages([{ from: 'bot', text: chatConfig.welcomeMessage }]);
+    }, 320);
+  };
 
   const getItemWidth = () => {
     return itemsRef.current[0]?.offsetWidth || 0;
@@ -30,128 +217,56 @@ const Inicio: React.FC = () => {
   };
 
   useEffect(() => {
-    goToSlide(currentIndex);
+    // inline translation to avoid dependency on goToSlide
+    if (!innerRef.current) return;
+    const translateX = -currentIndex * (itemsRef.current[0]?.offsetWidth || 0);
+    innerRef.current.style.transform = `translateX(${translateX}px)`;
   }, [currentIndex]);
 
   const handleMenuOpen = () => setMenuOpen(true);
   const handleMenuClose = () => setMenuOpen(false);
+  // Productos cargados desde el backend (persistentes)
+  const [productos, setProductos] = useState<Array<any>>([]);
 
-  // Productos en array para filtrar
-  const productos = [
-    // Nota: Se agregó la propiedad categoria a cada producto para permitir el filtrado por categoría
-    {
-      id: 1,
-      nombre: "Reloj",
-      precio: "$69.990 COP",
-      categoria: "Tecnología",
-      descripcion: "Fitness Tracker, Ip68 Reloj De Seguimiento De Actividad ...",
-      img: "/src/assets/IMG/index/reloj.png",
-      link: "/productoreloj",
-    },
-    {
-      id: 2,
-      nombre: "Cafetera",
-      precio: "$57.990 COP",
-      categoria: "Hogar",
-      descripcion: "Máquina con Molinillo, Máquina de Espresso de 15 Bar con Varita de...",
-      img: "/src/assets/IMG/index/cafetera.png",
-      link: "/ProductoCafeteria",
-    },
-    {
-      id: 3,
-      nombre: "Bolso",
-      precio: "$102.639 COP",
-      categoria: "Moda",
-      descripcion: "Bolso de hombro para mujer, bolso de gran capacidad, bolso cruzado con...",
-      img: "/src/assets/IMG/index/bolso.png",
-      link: "/productobolso",
-    },
-    {
-      id: 4,
-      nombre: "Perro",
-      precio: "$19.779 COP",
-      categoria: "Mascotas",
-      descripcion: "Chubasquero con cara para perros, mono impermeable, Chaqueta...",
-      img: "/src/assets/IMG/index/perro.png",
-      link: "/ProductoPerro",
-    },
-    {
-      id: 5,
-      nombre: "Audífonos E6S",
-      precio: "$19.699 COP",
-      categoria: "Tecnología",
-      descripcion: "Auriculares inalámbricos E6S con cancelación de ruido, auriculares...",
-      img: "/src/assets/IMG/index/audifonos.png",
-      link: "/ProductoAudifonosE6S",
-    },
-    ...(showMore
-      ? [
-          {
-            id: 6,
-            nombre: "Auriculares Pro",
-            precio: "$49.900 COP",
-            categoria: "Tecnología",
-            descripcion: "Audífonos inalámbricos con cancelación de ruido y batería de larga duración...",
-            img: "/src/assets/IMG/index/audifonos_deportivos.jpg",
-            link: "/ProductoAuricularesPro",
-          },
-          {
-            id: 7,
-            nombre: "Set de pinturas",
-            precio: "$29.990 COP",
-            categoria: "Arte",
-            descripcion: "Set de pintura acrílica profesional, ideal para artistas y principiantes...",
-            img: "/src/assets/IMG/index/set.jpg",
-            link: "/ProductoSet",
-          },
-          {
-            id: 8,
-            nombre: "Lienzo",
-            precio: "$17.990 COP",
-            categoria: "Arte",
-            descripcion: "Lienzo Bastidor 12 X 18 Cm En Caballete En Madera 280g/m2...",
-            img: "/src/assets/IMG/index/lienzo.jpg",
-            link: "/ProductoLienzo",
-          },
-          {
-            id: 9,
-            nombre: "Sofá",
-            precio: "$899.990 COP",
-            categoria: "Hogar",
-            descripcion: "Sofá moderno de 1 plaza, tapizado en tela beige, diseño elegante y cómodo...",
-            img: "/src/assets/IMG/index/sofa.jpg",
-            link: "/ProductoSofa",
-          },
-          {
-            id: 10,
-            nombre: "Utensilios de cocina",
-            precio: "$30.990 COP",
-            categoria: "Hogar",
-            descripcion: "Set de utensilios de cocina de alta calidad, resistentes al calor y fáciles de limpiar.",
-            img: "/src/assets/IMG/index/cocina.jpg",
-            link: "/ProductoCocina",
-          },
-          {
-            id: 11,
-            nombre: "Consola PlayStation",
-            precio: "$1.590.990 COP",
-            categoria: "Tecnología",
-            descripcion: "Consola PlayStation de última generación, gráficos avanzados y gran capacidad de almacenamiento.",
-            img: "/src/assets/IMG/index/consola.jpg",
-            link: "/ProductoPlay",
-          },
-          {
-            id: 12,
-            nombre: "Zapatillas deportivas",
-            precio: "$300.000 COP",
-            categoria: "Moda",
-            descripcion: "Zapatillas deportivas cómodas y ligeras, ideales para correr y actividades al aire libre.",
-            img: "/src/assets/IMG/index/zapatillas.jpg",
-            link: "/ProductoZapatillas",
-          },
-        ]
-      : []),
-  ];
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch('http://127.0.0.1:8000/productos/rich');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+        // map backend shape to front shape
+        const mapped = data.map((p: any) => {
+          // backend returns p.image which can be either a relative path (e.g. "/static/uploads/xxx")
+          // or an absolute external URL (https://...). If it's absolute we must use it as-is,
+          // otherwise prefix with our backend host so the browser can fetch the image.
+          let imgUrl: string | null = null;
+          if (p.image) {
+            const v = String(p.image).trim();
+            if (v.startsWith('http://') || v.startsWith('https://') || v.startsWith('//')) {
+              imgUrl = v;
+            } else {
+              imgUrl = `http://127.0.0.1:8000${v}`;
+            }
+          }
+          return {
+            id: p.id,
+            nombre: p.nombre,
+            descripcion: p.descripcion,
+            precio: p.precio ? `$${Number(p.precio).toLocaleString('es-CO')} COP` : null,
+            img: imgUrl,
+            link: `/producto/${p.id}`,
+            categoria: '',
+          };
+        });
+        setProductos(mapped);
+      } catch (err) {
+        console.error('Error cargando productos', err);
+      }
+    })();
+    return () => { mounted = false };
+  }, [showMore]);
 
   // Estado para el tipo de filtro
   const [tipoFiltro, setTipoFiltro] = useState("nombre");
@@ -163,7 +278,7 @@ const Inicio: React.FC = () => {
     if (tipoFiltro === "nombre") {
       return producto.nombre.toLowerCase().includes(valor);
     } else if (tipoFiltro === "precio") {
-      return producto.precio.toLowerCase().includes(valor);
+      return (producto.precio ? String(producto.precio).toLowerCase() : '').includes(valor);
     } else if (tipoFiltro === "categoria") {
       return producto.categoria && producto.categoria.toLowerCase().includes(valor);
     }
@@ -382,9 +497,24 @@ const Inicio: React.FC = () => {
           productosFiltrados.map(producto => (
             <div className="inicio-producto" key={producto.id}>
               <a href={producto.link} className="btn">
-                <img src={producto.img} alt={producto.nombre} />
+                {producto.img ? (
+                  <img
+                    src={producto.img}
+                    alt={producto.nombre}
+                    onError={e => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = "/src/assets/IMG/index/no-image.png";
+                    }}
+                  />
+                ) : (
+                  <img
+                    src={"/src/assets/IMG/index/no-image.png"}
+                    alt="Sin imagen"
+                  />
+                )}
               </a>
-              <p className="precio">{producto.precio}</p>
+              <p className="precio">{producto.precio || ''}</p>
               <p>{producto.descripcion}</p>
             </div>
           ))
@@ -410,11 +540,124 @@ const Inicio: React.FC = () => {
       </div>
 
       {/* Botón flotante del chat */}
-      <div className="chat-btn">
-        <a>
-          <i className="fa-solid fa-comment"></i>
-        </a>
-      </div>
+      {/* Modal para agregar producto (solo vendedor) */}
+      {showAddModal && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="modal-header">
+              <h3>Agregar nuevo producto</h3>
+              <button className="modal-close" onClick={() => setShowAddModal(false)}>×</button>
+            </div>
+            <form className="modal-form" onSubmit={handleSubmitAddProduct}>
+              <label>Nombre</label>
+              <input className="modal-input" value={formNombre} onChange={e => setFormNombre(e.target.value)} required />
+
+              <label>Descripción</label>
+              <textarea value={formDescripcion} onChange={e => setFormDescripcion(e.target.value)} />
+
+              <label>Precio</label>
+              <input className="modal-input" value={formPrecio} onChange={e => setFormPrecio(e.target.value)} required />
+
+              <div className="row-small">
+                <div>
+                  <label style={{textAlign:'center', display:'block'}}>Cantidad</label>
+                  <input className="modal-input-small" type="number" value={formCantidad} onChange={e => setFormCantidad(Number(e.target.value))} min={0} />
+                </div>
+                <div>
+                  <label style={{textAlign:'center', display:'block'}}>Stock mínimo</label>
+                  <input className="modal-input-small" type="number" value={formStockMinimo} onChange={e => setFormStockMinimo(Number(e.target.value))} min={0} />
+                </div>
+              </div>
+
+              <label>Categoría</label>
+              <select value={formCategoriaId} onChange={e => setFormCategoriaId(Number(e.target.value))}>
+                {categories.length === 0 && <option value={1}>Sin categorías</option>}
+                {categories.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+
+              <label style={{marginTop:8}}>
+                <input type="checkbox" checked={formDisponible} onChange={e => setFormDisponible(e.target.checked)} /> Disponible
+              </label>
+
+              <label style={{marginTop:6}}>Imagen / Video</label>
+              <input type="file" accept="image/*,video/*" onChange={handleFileChange} />
+
+              {formFile && formFile.type.startsWith('image/') && (
+                <div style={{marginTop:8}}>
+                  <strong>Previsualización:</strong>
+                  <div style={{marginTop:6}}>
+                    <img src={URL.createObjectURL(formFile)} alt="preview" style={{maxWidth:'100%', borderRadius:8}} />
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: 16, marginTop: 20, justifyContent:'center' }}>
+                <button type="button" className="btn-secondary" onClick={() => setShowAddModal(false)}>Cancelar</button>
+                <button type="submit" className="btn-primary">Crear producto</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {!chatOpen && (
+        <>
+          {isSeller && (
+            <button className="up-btn" onClick={() => setShowAddModal(true)} aria-label="Agregar producto">
+              <i className="fa-solid fa-plus"></i>
+            </button>
+          )}
+          <button className="chat-btn" onClick={() => setChatOpen(true)} aria-label="Abrir chat">
+            <i className="fa-solid fa-comment"></i>
+          </button>
+        </>
+      )}
+
+      {chatOpen && (
+        <div className={`chatbox-float ${closing ? 'chatbox-float-closing' : ''}`}>
+          <div className="chatbox-header">
+            <span>Soporte JOSNISHOP</span>
+            <button className="chatbox-close" onClick={handleCloseChat} aria-label="Cerrar chat">
+              <i className="fa-solid fa-xmark"></i>
+            </button>
+          </div>
+          <div className="chatbox-body" ref={chatBodyRef}>
+            {chatMessages.map((msg, idx) => (
+              <div key={idx} className={`chatbox-message chatbox-message-${msg.from}`}>
+                {msg.text}
+              </div>
+            ))}
+          </div>
+          <form className="chatbox-footer" onSubmit={handleSend}>
+            <input
+              type="text"
+              placeholder="Escribe tu mensaje..."
+              value={chatInput}
+              onChange={e => { setChatInput(e.target.value); setLastUserMessage(e.target.value); }}
+              autoFocus
+              maxLength={chatConfig.maxLength}
+            />
+            <button
+              className="chatbox-send"
+              type="submit"
+              disabled={chatInput.trim() === ""}
+              aria-label="Enviar mensaje"
+            >
+              <i className="fa-solid fa-paper-plane"></i>
+            </button>
+          </form>
+          {/* Contactanos por WhatsApp button under the chat form */}
+          <div style={{ padding: '10px 12px' }}>
+            {(whatsappUrl || waPhone) && (
+              <a href={whatsappUrl || (`https://wa.me/${waPhone}?text=${encodeURIComponent(lastUserMessage || 'Hola, necesito ayuda')}`)} target="_blank" rel="noreferrer">
+                <button style={{ width: '100%', background: '#25D366', color: '#fff', padding: '12px 16px', borderRadius: 24, fontSize: 16 }}>Contáctanos por WhatsApp</button>
+              </a>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

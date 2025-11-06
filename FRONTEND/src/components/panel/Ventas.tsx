@@ -13,8 +13,7 @@ type VentaMensual = { TotalVentasMensuales: number };
 type VentaDiaria = { TotalVentasDiarias: number };
 type VentaResponse = VentaAnual | VentaTotalAnual | VentaMensual | VentaDiaria;
 
-const typeOptions = ["anio", "mes", "dia"] as const;
-type QueryType = typeof typeOptions[number];
+type QueryType = 'anio' | 'mes' | 'dia';
 
 const Ventas: React.FC = () => {
   const [ventas, setVentas] = useState<VentaResponse[]>([]);
@@ -39,55 +38,70 @@ const Ventas: React.FC = () => {
   };
 
   const descargarPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text("Reporte de Ventas", 14, 20);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+      const img = new Image();
+      img.src = '/logo.png';
+      const title = 'Reporte de Ventas';
+      const generatedAt = new Date();
+      const generatedAtStr = generatedAt.toLocaleString();
 
-    // Fecha de generación
-    doc.setFontSize(10);
-    doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 28);
+      const mensaje = "Estimado vendedor:\n" +
+        "Este reporte refleja hasta el día de hoy todas sus ventas registradas en nuestra plataforma.\n" +
+        "Queremos felicitarle y agradecerle sinceramente por su dedicación, esfuerzo y compromiso diario.\n" +
+        "Cada venta representa no solo un logro comercial, sino también el resultado de su pasión, constancia y trabajo en equipo.\n\n" +
+        "Gracias por confiar en nosotros y por ser parte fundamental de nuestra familia.\n" +
+        "Recuerde que cada meta alcanzada es un paso más hacia sus sueños y que juntos seguiremos creciendo y superando nuevos retos.\n\n" +
+        "¡Siga adelante, su éxito es nuestro orgullo!\n\n" +
+        "Con aprecio,\n" +
+        "El equipo de JosniShop";
 
-    // Mensaje emotivo bonito y bien separado
-    doc.setFontSize(12);
-    const mensaje = `Estimado vendedor:
+    const render = () => {
+      doc.setFontSize(20);
+      doc.setTextColor('#1f618d');
+      doc.text(title, 140, 50);
+      doc.setFontSize(10);
+      doc.setTextColor('#555');
+      doc.text(`Generado: ${generatedAtStr}`, 140, 68);
 
-Este reporte refleja hasta el día de hoy todas sus ventas registradas en nuestra plataforma.
-Queremos felicitarle y agradecerle sinceramente por su dedicación, esfuerzo y compromiso diario.
-Cada venta representa no solo un logro comercial, sino también el resultado de su pasión, constancia y trabajo en equipo.
+      const mensajeLines = doc.splitTextToSize(mensaje, pageWidth - 80);
+      doc.setFontSize(11);
+      doc.setTextColor('#222');
+      doc.text(mensajeLines, 40, 100);
 
-Gracias por confiar en nosotros y por ser parte fundamental de nuestra familia.
-Recuerde que cada meta alcanzada es un paso más hacia sus sueños y que juntos seguiremos creciendo y superando nuevos retos.
+      const startY = 120 + mensajeLines.length * 12;
+      if (ventas.length === 0) {
+        doc.setFontSize(12);
+        doc.text('No hay datos para mostrar.', 40, startY);
+      } else {
+        const headers = [Object.keys(ventas[0])];
+        const rows = ventas.map(v => Object.values(v));
+        autoTable(doc, {
+          head: headers,
+          body: rows,
+          startY,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: '#27ae60', textColor: '#fff' },
+          margin: { left: 40, right: 40 }
+        });
+      }
 
-¡Siga adelante, su éxito es nuestro orgullo!
+      doc.setFontSize(9);
+      doc.setTextColor('#777');
+      doc.text(`Última vista: ${generatedAtStr}`, 40, doc.internal.pageSize.getHeight() - 30);
 
-Con aprecio,
-El equipo de JosniShop`;
+      doc.save('reporte_ventas.pdf');
+    };
 
-    // Ajusta el texto para que no se salga del margen
-    const mensajeLines = doc.splitTextToSize(mensaje, 180);
-    doc.text(mensajeLines, 14, 38);
-
-    // Calcula la posición Y después del texto
-    const yAfterMensaje = 38 + mensajeLines.length * 7 + 10;
-
-    // Tabla de datos
-    if (ventas.length === 0) {
-      doc.setFontSize(12);
-      doc.text("No hay datos para mostrar.", 14, yAfterMensaje);
-    } else {
-      const headers = [Object.keys(ventas[0])];
-      const rows = ventas.map(v => Object.values(v));
-      autoTable(doc, {
-        head: headers,
-        body: rows,
-        startY: yAfterMensaje,
-        styles: { halign: 'center' },
-        headStyles: { fillColor: "#27ae60", textColor: "#fff" },
-        margin: { top: 10 },
-      });
-    }
-
-    doc.save("reporte_ventas.pdf");
+    img.onload = () => {
+      const imgWidth = 80;
+      const imgHeight = (img.height / img.width) * imgWidth;
+      doc.addImage(img, 'PNG', 40, 30, imgWidth, imgHeight);
+      render();
+    };
+    img.onerror = () => {
+      render();
+    };
   };
 
   // Detecta el campo correcto según el tipo de consulta

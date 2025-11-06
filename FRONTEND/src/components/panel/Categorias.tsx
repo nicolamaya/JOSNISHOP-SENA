@@ -90,56 +90,60 @@ const Categorias: React.FC = () => {
   };
 
   const descargarPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text("Reporte de Categorías", 14, 20);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const img = new Image();
+    img.src = '/logo.png';
 
-    // Fecha de generación
-    doc.setFontSize(10);
-    doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 28);
+    const title = 'Reporte de Categorías';
+    const generatedAt = new Date();
+    const generatedAtStr = generatedAt.toLocaleString();
+    const mensaje = `Estimado administrador:\n\nEste reporte contiene todas las categorías registradas en la plataforma.\nGracias a su gestión y organización, nuestros productos pueden ser encontrados fácilmente por los clientes.\n\n¡Siga adelante, su trabajo es fundamental para el éxito de JosniShop!\n\nCon aprecio,\nEl equipo de JosniShop`;
 
-    // Mensaje motivador
-    doc.setFontSize(12);
-    const mensaje = `Estimado administrador:
+    const render = () => {
+      doc.setFontSize(20);
+      doc.setTextColor('#1f618d');
+      doc.text(title, 140, 50);
+      doc.setFontSize(10);
+      doc.setTextColor('#555');
+      doc.text(`Generado: ${generatedAtStr}`, 140, 68);
 
-Este reporte contiene todas las categorías registradas en la plataforma.
-Gracias a su gestión y organización, nuestros productos pueden ser encontrados fácilmente por los clientes.
-Su dedicación y esfuerzo hacen posible que la tienda crezca y se mantenga ordenada.
+      const mensajeLines = doc.splitTextToSize(mensaje, pageWidth - 80);
+      doc.setFontSize(11);
+      doc.setTextColor('#222');
+      doc.text(mensajeLines, 40, 100);
 
-¡Siga adelante, su trabajo es fundamental para el éxito de JosniShop!
+      const startY = 120 + mensajeLines.length * 12;
+      if (categoriasFiltradas.length === 0) {
+        doc.setFontSize(12);
+        doc.text('No hay categorías para mostrar.', 40, startY);
+      } else {
+        const headers = [["ID", "Nombre", "Estado", "Fecha de creación"]];
+        const rows = categoriasFiltradas.map((cat) => [cat.id, cat.nombre, cat.estado ? 'Activo' : 'Inactivo', new Date(cat.fecha_creacion).toLocaleString()]);
+        autoTable(doc, {
+          head: headers,
+          body: rows,
+          startY,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: '#27ae60', textColor: '#fff' },
+          margin: { left: 40, right: 40 }
+        });
+      }
 
-Con aprecio,
-El equipo de JosniShop`;
+      doc.setFontSize(9);
+      doc.setTextColor('#777');
+      doc.text(`Última vista: ${generatedAtStr}`, 40, doc.internal.pageSize.getHeight() - 30);
 
-    const mensajeLines = doc.splitTextToSize(mensaje, 180);
-    doc.text(mensajeLines, 14, 38);
+      doc.save('reporte_categorias.pdf');
+    };
 
-    // Calcula la posición Y después del texto
-    const yAfterMensaje = 38 + mensajeLines.length * 7 + 10;
-
-    // Tabla de categorías
-    if (categoriasFiltradas.length === 0) {
-      doc.setFontSize(12);
-      doc.text("No hay categorías para mostrar.", 14, yAfterMensaje);
-    } else {
-      const headers = [["ID", "Nombre", "Estado", "Fecha de creación"]];
-      const rows = categoriasFiltradas.map((cat) => [
-        cat.id,
-        cat.nombre,
-        cat.estado ? "Activo" : "Inactivo",
-        new Date(cat.fecha_creacion).toLocaleString(),
-      ]);
-      autoTable(doc, {
-        head: headers,
-        body: rows,
-        startY: yAfterMensaje,
-        styles: { halign: "center" },
-        headStyles: { fillColor: "#27ae60", textColor: "#fff" },
-        margin: { top: 10 },
-      });
-    }
-
-    doc.save("reporte_categorias.pdf");
+    img.onload = () => {
+      const imgWidth = 80;
+      const imgHeight = (img.height / img.width) * imgWidth;
+      doc.addImage(img, 'PNG', 40, 30, imgWidth, imgHeight);
+      render();
+    };
+    img.onerror = () => { render(); };
   };
 
   // Filtrar categorías por nombre
@@ -224,20 +228,10 @@ El equipo de JosniShop`;
                     </span>
                   </td>
                   <td>
-                    <button
-                      className="btn-edit"
-                      onClick={() => abrirModal(cat)}
-                    >
-                      Editar
-                    </button>
-                    <br />
-                    <br />
-                    <button
-                      className="btn-delete"
-                      onClick={() => eliminarCategoria(cat.id)}
-                    >
-                      Eliminar
-                    </button>
+                    <div className="table-actions">
+                      <button className="btn-edit" onClick={() => abrirModal(cat)}>Editar</button>
+                      <button className="btn-delete" onClick={() => eliminarCategoria(cat.id)}>Eliminar</button>
+                    </div>
                   </td>
                 </tr>
               ))}

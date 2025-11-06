@@ -34,6 +34,9 @@ const Productos: React.FC = () => {
 
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
+  const [precio, setPrecio] = useState<number | "">("");
+  const [imagenFile, setImagenFile] = useState<File | null>(null);
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [categoriaId, setCategoriaId] = useState<number>(0);
   const [estado, setEstado] = useState(true);
   const [busqueda, setBusqueda] = useState<string>("");
@@ -79,17 +82,28 @@ const Productos: React.FC = () => {
       if (editProducto) {
         const res = await axios.put<Producto>(
           `http://localhost:8000/productos/${editProducto.id}`,
-          { nombre, descripcion, categoria_id: categoriaId, estado }
+          { nombre, descripcion, categoria_id: categoriaId, estado, precio }
         );
         setProductos(
           productos.map((p) => (p.id === editProducto.id ? res.data : p))
         );
       } else {
-        const res = await axios.post<Producto>(
-          "http://localhost:8000/productos",
-          { nombre, descripcion, categoria_id: categoriaId, estado }
+        // Enviar FormData a endpoint de subida
+        const form = new FormData();
+        form.append('nombre', nombre);
+        form.append('descripcion', descripcion);
+        form.append('categoria_id', String(categoriaId));
+        if (precio !== "") form.append('precio', String(precio));
+        if (imagenFile) form.append('imagen', imagenFile);
+        if (videoFile) form.append('video', videoFile);
+        const resUpload = await axios.post(
+          "http://localhost:8000/upload/producto",
+          form,
+          { headers: { 'Content-Type': 'multipart/form-data' } }
         );
-        setProductos([...productos, res.data]);
+        // Obtener el producto recien creado
+        const newProd = await axios.get<Producto>(`http://localhost:8000/productos/${resUpload.data.producto_id}`);
+        setProductos([...productos, newProd.data]);
       }
       cerrarModal();
     } catch (err) {
@@ -108,59 +122,63 @@ const Productos: React.FC = () => {
   };
 
   const descargarPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text("Reporte de Productos", 14, 20);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const img = new Image();
+    img.src = '/logo.png';
 
-    // Fecha de generación
-    doc.setFontSize(10);
-    doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 28);
+    const title = 'Reporte de Productos';
+    const generatedAt = new Date();
+    const generatedAtStr = generatedAt.toLocaleString();
+    const mensaje = `Estimado administrador:\n\nEste reporte contiene todos los productos registrados en la plataforma.\nGracias por su esfuerzo y dedicación.\n\n¡Siga adelante, su trabajo es clave para el éxito de JosniShop!\n\nCon aprecio,\nEl equipo de JosniShop`;
 
-    // Mensaje motivador
-    doc.setFontSize(12);
-    const mensaje = `Estimado administrador:
+    const render = () => {
+      doc.setFontSize(20);
+      doc.setTextColor('#1f618d');
+      doc.text(title, 140, 50);
+      doc.setFontSize(10);
+      doc.setTextColor('#555');
+      doc.text(`Generado: ${generatedAtStr}`, 140, 68);
 
-Este reporte contiene todos los productos registrados en la plataforma.
-Gracias a su esfuerzo y dedicación, nuestra tienda sigue creciendo y ofreciendo lo mejor a nuestros clientes.
-Recuerde que cada producto es una oportunidad para sorprender y satisfacer a quienes confían en nosotros.
+      const mensajeLines = doc.splitTextToSize(mensaje, pageWidth - 80);
+      doc.setFontSize(11);
+      doc.setTextColor('#222');
+      doc.text(mensajeLines, 40, 100);
 
-¡Siga adelante, su trabajo es clave para el éxito de JosniShop!
+      const startY = 120 + mensajeLines.length * 12;
+      if (productosFiltrados.length === 0) {
+        doc.setFontSize(12);
+        doc.text('No hay productos para mostrar.', 40, startY);
+      } else {
+        const headers = [["ID", "Nombre", "Descripción", "Categoría"]];
+        const rows = productosFiltrados.map(prod => {
+          const categoria = categorias.find(c => c.id === prod.categoria_id);
+          return [prod.id, prod.nombre, prod.descripcion, categoria?.nombre || "-"];
+        });
+        autoTable(doc, {
+          head: headers,
+          body: rows,
+          startY,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: '#27ae60', textColor: '#fff' },
+          margin: { left: 40, right: 40 }
+        });
+      }
 
-Con aprecio,
-El equipo de JosniShop`;
+      doc.setFontSize(9);
+      doc.setTextColor('#777');
+      doc.text(`Última vista: ${generatedAtStr}`, 40, doc.internal.pageSize.getHeight() - 30);
 
-    const mensajeLines = doc.splitTextToSize(mensaje, 180);
-    doc.text(mensajeLines, 14, 38);
+      doc.save('reporte_productos.pdf');
+    };
 
-    // Calcula la posición Y después del texto
-    const yAfterMensaje = 38 + mensajeLines.length * 7 + 10;
-
-    // Tabla de productos
-    if (productosFiltrados.length === 0) {
-      doc.setFontSize(12);
-      doc.text("No hay productos para mostrar.", 14, yAfterMensaje);
-    } else {
-      const headers = [["ID", "Nombre", "Descripción", "Categoría"]];
-      const rows = productosFiltrados.map(prod => {
-        const categoria = categorias.find(c => c.id === prod.categoria_id);
-        return [
-          prod.id,
-          prod.nombre,
-          prod.descripcion,
-          categoria?.nombre || "-"
-        ];
-      });
-      autoTable(doc, {
-        head: headers,
-        body: rows,
-        startY: yAfterMensaje,
-        styles: { halign: 'center' },
-        headStyles: { fillColor: "#27ae60", textColor: "#fff" },
-        margin: { top: 10 },
-      });
-    }
-
-    doc.save("reporte_productos.pdf");
+    img.onload = () => {
+      const imgWidth = 80;
+      const imgHeight = (img.height / img.width) * imgWidth;
+      doc.addImage(img, 'PNG', 40, 30, imgWidth, imgHeight);
+      render();
+    };
+    img.onerror = () => { render(); };
   };
 
   // Filtrar productos por nombre
@@ -224,10 +242,10 @@ El equipo de JosniShop`;
                     <td>{prod.descripcion}</td>
                     <td>{categoria?.nombre || "-"}</td>
                     <td>
-                      <button className="btn-edit" onClick={() => abrirModal(prod)}>Editar</button>
-                      <br />
-                      <br />
-                      <button className="btn-delete" onClick={() => eliminarProducto(prod.id)}>Eliminar</button>
+                      <div className="table-actions">
+                        <button className="btn-edit" onClick={() => abrirModal(prod)}>Editar</button>
+                        <button className="btn-delete" onClick={() => eliminarProducto(prod.id)}>Eliminar</button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -244,10 +262,16 @@ El equipo de JosniShop`;
             <input value={nombre} onChange={(e) => setNombre(e.target.value)} />
             <label>Descripción</label>
             <input value={descripcion} onChange={(e) => setDescripcion(e.target.value)} />
+            <label>Precio</label>
+            <input value={precio} onChange={(e) => setPrecio(e.target.value === '' ? '' : Number(e.target.value))} type="number" />
             <label>Categoría</label>
             <select value={categoriaId} onChange={(e) => setCategoriaId(Number(e.target.value))}>
               {categorias.map(c => <option key={c.id} value={c.id}>{c.nombre}</option>)}
             </select>
+            <label>Imagen (jpg/png)</label>
+            <input type="file" accept="image/*" onChange={(e) => setImagenFile(e.target.files ? e.target.files[0] : null)} />
+            <label>Video (opcional)</label>
+            <input type="file" accept="video/*" onChange={(e) => setVideoFile(e.target.files ? e.target.files[0] : null)} />
             <div className="modal-buttons">
               <button className="btn-save" onClick={guardarProducto}>Guardar</button>
               <button className="btn-delete" onClick={cerrarModal}>Cancelar</button>

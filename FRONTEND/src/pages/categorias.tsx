@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import "../assets/css/categorias.css";
 import "font-awesome/css/font-awesome.min.css";
-import { FaBars } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import NavBar from "../components/NavBar";
 
 type CategoriaKey =
   | "hogar"
@@ -71,7 +72,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Estantes</p>
       </div>
       <div className="boton-contenedor">
-        <a href="./registro.html">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/hogar">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -104,7 +105,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Sombrillas</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/accesorios">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -139,7 +140,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Colgantes</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/bisuteria">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -174,7 +175,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Sombreros</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/moda-mujer">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -203,7 +204,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Soldadores</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/electricidad">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -237,7 +238,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Estufas portátiles</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/deporte">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -264,7 +265,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Zapatos casuales</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/moda-hombre">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -289,7 +290,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Colchones</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/muebles">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -315,7 +316,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Transportadoras</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/mascota">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -339,7 +340,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Silbatos</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/seguridad">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -370,7 +371,7 @@ const secciones: Record<CategoriaKey, JSX.Element> = {
         <p>Rompecabezas complejos</p>
       </div>
       <div className="boton-contenedor">
-        <a href="#">¿Lo quieres? ¡Haz click aquí para ver más!</a>
+        <Link to="/categoria/juguetes">¿Lo quieres? ¡Haz click aquí para ver más!</Link>
       </div>
     </>
   ),
@@ -386,47 +387,8 @@ const Categorias: React.FC = () => {
 
   return (
     <div>
-      {/* Menú superior */}
-      <header>
-        <div className="navbar">
-          <button className="hamburger-btn" onClick={handleMenuOpen}>
-            <FaBars />
-          </button>
-          <a href="/">
-            <img
-              src="/public/logo.png"
-              alt="Logo JOSNISHOP"
-              className="logo"
-            />
-          </a>
-          <a href="/categorias" className="titulo">
-            Categorías
-          </a>
-          <div className="buscador-container">
-            <input type="text" placeholder="Buscar" className="buscador" />
-            <span className="icono-lupa">
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </span>
-          </div>
-          <div className="iconos">
-            <a href="/">
-              <i className="fa-solid fa-house"></i>
-            </a>
-            <a href="/inicio">
-              <i className="fa-solid fa-bag-shopping"></i>
-            </a>
-            <a href="/carrito">
-              <i className="fa-solid fa-cart-shopping"></i>
-            </a>
-            <a href="/panel">
-              <i className="fa-solid fa-user"></i>
-            </a>
-            <a href="/login" className="iniciar-sesion">
-              Iniciar Sesión
-            </a>
-          </div>
-        </div>
-      </header>
+      {/* Menú superior compartido */}
+      <NavBar onOpenMenu={handleMenuOpen} />
 
       {/* Menú hamburguesa lateral */}
       <nav className={`hamburger-menu${menuOpen ? " active" : ""}`}>
@@ -436,7 +398,7 @@ const Categorias: React.FC = () => {
 
         {/* Contenido visible solo en móvil */}
         <div className="menu-header-logo menu-mobile-only">
-          <img src="/public/logo.png" alt="Logo JOSNISHOP" className="logo" />
+          <img src="/logo.png" alt="Logo JOSNISHOP" className="logo" />
           <span className="titulo-menu">JOSNISHOP</span>
         </div>
         <div

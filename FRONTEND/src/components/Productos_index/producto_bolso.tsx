@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../../assets/css/producto_sele/Producto_selec.css"; // Ajusta la ruta a tu CSS
+import ResenasProducto from "./ResenasProducto";
+import NavBar from "../NavBar";
 
 const Productobolso: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,52 +34,11 @@ const Productobolso: React.FC = () => {
     }
   }, [currentIndex]);
 
+  const id_producto = 63; // Cambia por el ID real del bolso en tu base de datos
+
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header className="menu">
-        <div className="hamburger">
-          <i className="fa-solid fa-bars"></i>
-        </div>
-
-        <div className="logo">
-          <img src="/logo.png" alt="Josnishop Logo" />
-        </div>
-
-        <a href="/categorias" className="categorias">Categorías</a>
-
-        <div className="search-bar">
-          <input type="text" placeholder="Buscar" />
-          <i className="fa-solid fa-search"></i>
-        </div>
-
-        <nav className="nav-icons">
-          <a href="/"><i className="fa-solid fa-house"></i></a>
-          <a href="/inicio"><i className="fa-solid fa-bag-shopping"></i></a>
-          <a href="/carrito"><i className="fa-solid fa-cart-shopping"></i></a>
-          {(() => {
-            const userName = localStorage.getItem("userName");
-            const userId = localStorage.getItem("userId");
-            if (userId) {
-              return (
-                <a href="/panel" className="user-session" style={{ display: 'flex', alignItems: 'center', fontWeight: 600, color: '#1b3a2b' }}>
-                  <i className="fa-solid fa-user" style={{ fontSize: 22, marginRight: 6 }}></i>
-                  <span style={{ fontSize: 16 }}>
-                    {userName ? `Hola, ${userName}` : 'Mi cuenta'}
-                  </span>
-                </a>
-              );
-            } else {
-              return (
-                <a href="/login" className="iniciar-sesion">
-                  <i className="fa-solid fa-user" style={{ marginRight: 6 }}></i>
-                  Iniciar Sesión
-                </a>
-              );
-            }
-          })()}
-        </nav>
-      </header>
+      <NavBar />
 
       {/* CONTENIDO PRINCIPAL */}
       <div className="producto-container">
@@ -124,7 +85,6 @@ const Productobolso: React.FC = () => {
                 // Validar si el usuario está logueado (por ejemplo, si hay un token en localStorage)
                 const token = localStorage.getItem("token");
                 if (!token) {
-                  alert("Debes iniciar sesión para agregar productos al carrito.");
                   window.location.href = "/login";
                   return;
                 }
@@ -151,7 +111,7 @@ const Productobolso: React.FC = () => {
                   carrito.push(producto);
                 }
                 localStorage.setItem("carrito", JSON.stringify(carrito));
-                alert(`¡${cantidad} producto(s) agregado(s) al carrito!`);
+                window.location.href = "/carrito";
               }}
             >
               Agregar al carrito
@@ -160,23 +120,8 @@ const Productobolso: React.FC = () => {
         </div>
       </div>
 
-      {/* VIDEOS */}
-      {showVideos && (
-        <div id="videosContainer" className="videos-container">
-          <video controls>
-            <source src="src/assets/videos/index/bolso/video1.mp4" type="video/mp4" />
-            Tu navegador no soporta el video.
-          </video>
-          <video controls>
-            <source src="src/assets/videos/index/bolso/video2.mp4" type="video/mp4" />
-            Tu navegador no soporta el video.
-          </video>
-          <video controls>
-            <source src="src/assets/videos/index/bolso/video3.mp4" type="video/mp4" />
-            Tu navegador no soporta el video.
-          </video>
-        </div>
-      )}
+        {/* Reseñas del Producto (ahora arriba del carrusel) */}
+      <ResenasProducto id_producto={id_producto} />
 
       {/* CARRUSEL */}
       <div className="carousel">
@@ -203,6 +148,24 @@ const Productobolso: React.FC = () => {
           <span>&gt;</span>
         </button>
       </div>
+
+      {/* VIDEOS */}
+      {showVideos && (
+        <div id="videosContainer" className="videos-container">
+          <video controls>
+            <source src="src/assets/videos/index/bolso/video1.mp4" type="video/mp4" />
+            Tu navegador no soporta el video.
+          </video>
+          <video controls>
+            <source src="src/assets/videos/index/bolso/video2.mp4" type="video/mp4" />
+            Tu navegador no soporta el video.
+          </video>
+          <video controls>
+            <source src="src/assets/videos/index/bolso/video3.mp4" type="video/mp4" />
+            Tu navegador no soporta el video.
+          </video>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import "../assets/css/carrito.css";
-import { FaBars } from "react-icons/fa";
+import NavBar from "../components/NavBar";
 import "font-awesome/css/font-awesome.min.css";
 import CryptoJS from "crypto-js";
 
@@ -185,7 +185,47 @@ const Carrito: React.FC = () => {
   };
 
   const handleCardInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setCardData({ ...cardData, [e.target.name]: e.target.value });
+    let value = e.target.value;
+    const name = e.target.name;
+
+    // Manejo especial para la fecha de expiración
+    if (name === 'fecha') {
+      // Eliminar cualquier caracter que no sea número
+      value = value.replace(/\D/g, '');
+      // Agregar el slash después de MM
+      if (value.length >= 2) {
+        value = value.slice(0, 2) + '/' + value.slice(2);
+      }
+      // Limitar a 5 caracteres (MM/YY)
+      value = value.slice(0, 5);
+    }
+
+    // Manejo especial para CVV
+    if (name === 'cvv') {
+      // Solo permitir números y limitar a 3 dígitos
+      value = value.replace(/\D/g, '').slice(0, 3);
+    }
+
+    // Manejo especial para número de tarjeta
+    if (name === 'numero') {
+      // Eliminar espacios y caracteres no numéricos
+      value = value.replace(/\D/g, '');
+      // Agregar espacios cada 4 dígitos
+      value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+      // Limitar a 19 caracteres (16 números + 3 espacios)
+      value = value.slice(0, 19);
+    }
+
+    setCardData({ ...cardData, [name]: value });
+  };
+
+  const validateCardData = () => {
+    const { nombre, numero, fecha, cvv } = cardData;
+    if (!nombre.trim()) return "Ingrese el nombre en la tarjeta";
+    if (numero.replace(/\s/g, '').length !== 16) return "Número de tarjeta inválido";
+    if (!/^\d{2}\/\d{2}$/.test(fecha)) return "Fecha de expiración inválida";
+    if (cvv.length !== 3) return "CVV inválido";
+    return "";
   };
 
   const handleCardSubmit = (e: React.FormEvent) => {
@@ -207,12 +247,6 @@ const Carrito: React.FC = () => {
     setUsarGuardada(true);
     setShowResumen(true);
   };
-
-  const handleUsarGuardada = () => {
-    setUsarGuardada(true);
-    setShowResumen(true);
-  };
-
   const handleCambiarMetodo = () => {
     setShowResumen(false);
     setShowCardForm(true);
@@ -268,43 +302,7 @@ const Carrito: React.FC = () => {
 
   return (
     <div>
-      {/* MENÚ SUPERIOR */}
-      <header>
-        <div className="navbar">
-          <button className="hamburger-btn" onClick={handleMenuOpen}>
-            <FaBars />
-          </button>
-          <a href="/">
-            <img src="/public/logo.png" alt="Logo JOSNISHOP" className="logo" />
-          </a>
-          <a href="/categorias" className="titulo">
-            Categorías
-          </a>
-          <div className="buscador-container">
-            <input type="text" placeholder="Buscar" className="buscador" />
-            <span className="icono-lupa">
-              <i className="fa-solid fa-magnifying-glass"></i>
-            </span>
-          </div>
-          <div className="iconos">
-            <a href="/">
-              <i className="fa-solid fa-house"></i>
-            </a>
-            <a href="/inicio">
-              <i className="fa-solid fa-bag-shopping"></i>
-            </a>
-            <a href="/carrito">
-              <i className="fa-solid fa-cart-shopping"></i>
-            </a>
-            <a href="/panel">
-              <i className="fa-solid fa-user"></i>
-            </a>
-            <a href="/login" className="iniciar-sesion">
-              Iniciar Sesión
-            </a>
-          </div>
-        </div>
-      </header>
+      <NavBar onOpenMenu={handleMenuOpen} />
 
       {/* Menú hamburguesa lateral */}
       <nav className={`hamburger-menu${menuOpen ? " active" : ""}`}>
@@ -314,7 +312,7 @@ const Carrito: React.FC = () => {
 
         {/* Contenido visible solo en móvil */}
         <div className="menu-header-logo menu-mobile-only">
-          <img src="/public/logo.png" alt="Logo JOSNISHOP" className="logo" />
+          <img src="/logo.png" alt="Logo JOSNISHOP" className="logo" />
           <span className="titulo-menu">JOSNISHOP</span>
         </div>
         <div
@@ -575,71 +573,83 @@ const Carrito: React.FC = () => {
 
       {showCardForm && (
         <div className="modal-overlay">
-          <div className="modal-card">
-            <h3>Datos de la tarjeta</h3>
-            <form className="card-form" onSubmit={handleCardSubmit}>
-              <label>
-                Nombre en la tarjeta
+          <div className="tarjeta-modal">
+            <h2>Datos de la tarjeta</h2>
+            <form className="tarjeta-form" onSubmit={handleCardSubmit}>
+              <div className="tarjeta-field">
+                <label className="tarjeta-label">Nombre en la tarjeta</label>
                 <input
                   type="text"
                   name="nombre"
+                  className="tarjeta-input"
+                  placeholder="Nombre como aparece en la tarjeta"
                   value={cardData.nombre}
                   onChange={handleCardInput}
                   required
                 />
-              </label>
-              <label>
-                Número de tarjeta
+              </div>
+
+              <div className="tarjeta-field">
+                <label className="tarjeta-label">Número de tarjeta</label>
                 <input
                   type="text"
                   name="numero"
+                  className="tarjeta-input"
+                  placeholder="1234 5678 9012 3456"
                   value={cardData.numero}
                   onChange={handleCardInput}
                   required
-                  maxLength={16}
-                  pattern="\d{16}"
+                  maxLength={19}
                 />
-              </label>
-              <label>
-                Fecha de expiración
-                <input
-                  type="text"
-                  name="fecha"
-                  value={cardData.fecha}
-                  onChange={handleCardInput}
-                  required
-                  placeholder="MM/AA"
-                  maxLength={5}
-                  pattern="\d{2}/\d{2}"
-                />
-              </label>
-              <label>
-                CVV
-                <input
-                  type="text"
-                  name="cvv"
-                  value={cardData.cvv}
-                  onChange={handleCardInput}
-                  required
-                  maxLength={4}
-                  pattern="\d{3,4}"
-                />
-              </label>
-              {cardError && <span className="card-error">{cardError}</span>}
-              <div className="card-modal-btns">
-                <button type="submit" className="btn-confirmar">
+              </div>
+
+              <div className="tarjeta-inline-group">
+                <div className="tarjeta-field">
+                  <label className="tarjeta-label">Fecha de expiración</label>
+                  <input
+                    type="text"
+                    name="fecha"
+                    className="tarjeta-input fecha"
+                    placeholder="MM/AA"
+                    value={cardData.fecha}
+                    onChange={handleCardInput}
+                    required
+                    maxLength={5}
+                  />
+                </div>
+
+                <div className="tarjeta-field">
+                  <label className="tarjeta-label">CVV</label>
+                  <input
+                    type="text"
+                    name="cvv"
+                    className="tarjeta-input cvv"
+                    placeholder="CVV"
+                    value={cardData.cvv}
+                    onChange={handleCardInput}
+                    required
+                    maxLength={3}
+                  />
+                </div>
+              </div>
+
+              {cardError && <span className="tarjeta-error">{cardError}</span>}
+              
+              <div className="tarjeta-buttons">
+                <button type="submit" className="tarjeta-continuar">
                   Continuar
                 </button>
                 <button
                   type="button"
-                  className="btn-cancelar"
+                  className="tarjeta-cancelar"
                   onClick={() => setShowCardForm(false)}
                 >
                   Cancelar
                 </button>
               </div>
             </form>
-            <div className="card-icons">
+
+            <div className="tarjeta-brand-icons">
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/4/41/Visa_Logo.png"
                 alt="Visa"

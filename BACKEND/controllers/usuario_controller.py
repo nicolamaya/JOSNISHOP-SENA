@@ -61,7 +61,7 @@ def enviar_correo(destinatario, nueva_contrasena):
     # NOTA: En un entorno de producción, nunca se deben usar credenciales de correo
     # hardcodeadas como estas. Se deben usar variables de entorno.
     remitente = "josnishop@gmail.com"
-    password = "sldk kwtc trmn tgrs"  # Contraseña de aplicación de Gmail.
+    password = "iyzn auso rqox thkm"  # Contraseña de aplicación de Gmail.
     asunto = "Recuperación de contraseña de tu cuenta en JosniShop"
     cuerpo = f"""
 Hola,

@@ -233,6 +233,15 @@ body {
   margin: 1.8rem auto;
 }
 
+/* Card wrapper to make header + table appear on the same white board (like screenshot) */
+.panel-card {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  padding: 16px;
+  margin: 1.2rem 0;
+}
+
 .custom-table {
   width: 100%;
   min-width: 700px;
@@ -315,6 +324,23 @@ body {
 .btn-save:hover,
 .perfil-btn:hover {
   transform: scale(1.05);
+}
+
+/* Action buttons container: inline, consistent sizing */
+.table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.table-actions button {
+  min-width: 120px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* =============================
@@ -518,6 +544,98 @@ body {
     justify-content: flex-end;
   }
 }
+
+/* Ensure modal buttons have equal size and fill available space */
+.modal .modal-buttons button {
+  min-width: 140px;
+  padding: 12px 16px;
+  flex: 1 1 auto;
+}
+
+/* Form input / select consistent style */
+.form-input,
+select.form-input,
+input.form-input,
+textarea.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #d6d6d6;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: #fff;
+}
+
+/* Small tweak for table action buttons to be visually consistent */
+.table-actions button {
+  min-width: 110px;
+}
+
+/* Role and status badges */
+.role-badge,
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.role-badge.vendedor {
+  background-color: #004d25;
+  color: white;
+  border: 1px solid #00351a;
+}
+
+.role-badge.cliente {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+}
+
+.role-badge.no-role {
+  background-color: #f5f5f5;
+  color: #757575;
+  border: 1px solid #e0e0e0;
+}
+
+.status-badge {
+  padding: 4px 10px;
+  font-size: 0.85rem;
+}
+
+.status-badge.active {
+  background-color: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #a5d6a7;
+  font-weight: 600;
+}
+
+.status-badge.active::before {
+  content: "1";
+  background-color: #2e7d32;
+  color: white;
+  padding: 0 6px;
+  margin-right: 6px;
+  border-radius: 10px;
+}
+
+.status-badge.inactive {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ef9a9a;
+  font-weight: 600;
+}
+
+.status-badge.inactive::before {
+  content: "0";
+  background-color: #c62828;
+  color: white;
+  padding: 0 6px;
+  margin-right: 6px;
+  border-radius: 10px;
+}
+
 /* =============================
     ESTILOS PARA DETALLES DE PEDIDO
 ============================= */

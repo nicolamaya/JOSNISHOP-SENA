@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 // Iconos de lucide-react
-import { CheckCircle, XCircle, Edit2, Save, X } from "lucide-react";
+import { CheckCircle, XCircle, Edit2, Save, X, Eye, EyeOff } from "lucide-react"; // <-- agrega Eye y EyeOff
 import '../../assets/css/Perfil.css';
 
 // Interfaz que representa el usuario que devuelve el backend
@@ -26,6 +26,8 @@ const Perfil: React.FC = () => {
   const [form, setForm] = useState({ nombre: "", correo: "", contraseña: "" });
   // Estado para alertas (éxito o error)
   const [alert, setAlert] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+  // Estado para mostrar/ocultar contraseña
+  const [showPassword, setShowPassword] = useState(false);
 
   // useEffect que carga los datos del usuario al montar el componente
   useEffect(() => {
@@ -64,6 +66,15 @@ const Perfil: React.FC = () => {
   // Maneja la actualización del perfil
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault(); // Previene recarga
+    // Validación de contraseña: si se ingresó una nueva, debe cumplir requisitos
+    const validatePassword = (pwd: string) => {
+      const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'".,<>\/\\?\\|`~]).{8,}$/;
+      return re.test(pwd);
+    };
+    if (form.contraseña && !validatePassword(form.contraseña)) {
+      setAlert({ type: 'error', message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.' });
+      return;
+    }
     try {
       // PUT al backend con los datos actualizados
       await axios.put(`http://localhost:8000/usuarios/${user?.id_usuario}`, form);
@@ -166,7 +177,7 @@ const Perfil: React.FC = () => {
                 <p><span className="perfil-label">Correo:</span> {user.correo}</p>
               </div>
               {/* Botón editar */}
-              <button className="perfil-btn-edit" onClick={() => setEditMode(true)}>
+              <button className="perfil-btn-edit perfil-action-btn" onClick={() => setEditMode(true)}>
                 <Edit2 size={18} /> Editar
               </button>
             </div>
@@ -181,16 +192,35 @@ const Perfil: React.FC = () => {
                 Correo
                 <input name="correo" value={form.correo} onChange={handleChange} type="email" required />
               </label>
-              <label>
+              <label className="perfil-label-password">
                 Nueva contraseña
-                <input name="contraseña" value={form.contraseña} onChange={handleChange} type="password" placeholder="Nueva contraseña" />
+                <div className="perfil-password-wrapper">
+                  <input
+                    name="contraseña"
+                    value={form.contraseña}
+                    onChange={handleChange}
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Nueva contraseña"
+                    className="perfil-input-password"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="perfil-password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={0}
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
               </label>
               {/* Botones de acción */}
               <div className="perfil-form-actions">
-                <button className="perfil-btn-save" type="submit">
+                <button className="perfil-btn-save perfil-action-btn" type="submit">
                   <Save size={18} /> Guardar
                 </button>
-                <button className="perfil-btn-cancel" type="button" onClick={() => setEditMode(false)}>
+                <button className="perfil-btn-cancel perfil-action-btn" type="button" onClick={() => setEditMode(false)}>
                   <X size={18} /> Cancelar
                 </button>
               </div>
@@ -199,18 +229,7 @@ const Perfil: React.FC = () => {
           {/* Botón eliminar cuenta */}
           <div className="perfil-delete-account">
             <button
-              className="perfil-btn-delete"
-              style={{
-                marginTop: "2rem",
-                background: "#e53e3e",
-                color: "#fff",
-                border: "none",
-                borderRadius: "8px",
-                padding: "10px 20px",
-                fontWeight: "bold",
-                cursor: "pointer",
-                fontSize: "1rem"
-              }}
+              className="perfil-btn-delete perfil-action-btn"
               onClick={handleDeactivateAccount}
             >
               Desactivar cuenta

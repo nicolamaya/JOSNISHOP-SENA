@@ -9,6 +9,17 @@ import "font-awesome/css/font-awesome.min.css";
 import Panel from "./pages/Panel";
 import Inicio from "./pages/inicio";
 import Categorias from "./pages/categorias";
+import Hogar from "./components/Categorias/Hogar";
+import Accesorios from "./components/Categorias/Accesorios";
+import Bisuteria from "./components/Categorias/Bisuteria";
+import ModaMujer from "./components/Categorias/ModaMujer";
+import Electricidad from "./components/Categorias/Electricidad";
+import Deporte from "./components/Categorias/Deporte";
+import ModaHombre from "./components/Categorias/ModaHombre";
+import Muebles from "./components/Categorias/Muebles";
+import Mascota from "./components/Categorias/Mascota";
+import Seguridad from "./components/Categorias/Seguridad";
+import Juguetes from "./components/Categorias/Juguetes";
 import Noticias from "./components/hamburguesa/noticias";
 import Nosotros from "./components/hamburguesa/nosotros";
 import Contactanos from "./components/hamburguesa/contactanos";
@@ -24,6 +35,7 @@ import ProductoPlay from "./components/Productos_index/producto_play";
 import ProductoSofa from "./components/Productos_index/producto_sofa";
 import ProductoZapatillas from "./components/Productos_index/producto_zapatillas";
 import ProductoLienzo from "./components/Productos_index/producto_lienzo";
+import ProductoDetalle from "./components/Productos_index/ProductoDetalle";
 import Carrito from './pages/carrito.tsx';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import ResenasPanel from "./components/panel/resenas.tsx";
@@ -40,6 +52,17 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/panel" element={<Panel />} />
         <Route path="/inicio" element={<Inicio />} />
         <Route path="/categorias" element={<Categorias />} />
+  <Route path="/categoria/hogar" element={<Hogar />} />
+        <Route path="/categoria/accesorios" element={<Accesorios />} />
+        <Route path="/categoria/bisuteria" element={<Bisuteria />} />
+        <Route path="/categoria/moda-mujer" element={<ModaMujer />} />
+        <Route path="/categoria/electricidad" element={<Electricidad />} />
+        <Route path="/categoria/deporte" element={<Deporte />} />
+        <Route path="/categoria/moda-hombre" element={<ModaHombre />} />
+        <Route path="/categoria/muebles" element={<Muebles />} />
+        <Route path="/categoria/mascota" element={<Mascota />} />
+        <Route path="/categoria/seguridad" element={<Seguridad />} />
+        <Route path="/categoria/juguetes" element={<Juguetes />} />
         <Route path="/noticias" element={<Noticias />} />
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/contactanos" element={<Contactanos />} />
@@ -55,6 +78,7 @@ createRoot(document.getElementById('root')!).render(
         <Route path="/ProductoSofa" element={<ProductoSofa />} />
         <Route path="/ProductoZapatillas" element={<ProductoZapatillas />} />
         <Route path="/ProductoLienzo" element={<ProductoLienzo />} />
+  <Route path="/producto/:id" element={<ProductoDetalle />} />
         <Route path="/carrito" element={<Carrito />} />
         <Route path="/reseñas/:productoId" element={<ResenasPanel productoId={0} esVendedor={false} />} />
         <Route path="/ventas" element={<Ventas />} />

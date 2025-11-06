@@ -3,6 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import SalesReportModal from "./SalesReportModal";
 import "../../assets/css/panel.css";
 
 // ===================
@@ -33,6 +34,7 @@ const Inventario: React.FC = () => {
   const [productos, setProductos] = useState<Producto[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [salesModalOpen, setSalesModalOpen] = useState(false);
   const [editInventario, setEditInventario] = useState<Inventario | null>(null);
 
   const [productoId, setProductoId] = useState<number>(0);
@@ -116,60 +118,63 @@ const Inventario: React.FC = () => {
   });
 
   const descargarPDF = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(22);
-    doc.text("Reporte de Inventario", 14, 20);
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const img = new Image();
+    img.src = '/logo.png';
 
-    // Fecha de generación
-    doc.setFontSize(10);
-    doc.text(`Generado: ${new Date().toLocaleString()}`, 14, 28);
+    const title = 'Reporte de Inventario';
+    const generatedAt = new Date();
+    const generatedAtStr = generatedAt.toLocaleString();
+    const mensaje = `Estimado encargado de inventario:\n\nEste reporte refleja el estado actual de los productos en su almacén.\nGracias por su dedicación y atención al detalle, pues su trabajo es fundamental para el éxito de nuestro equipo.\n\n¡Siga adelante, su esfuerzo marca la diferencia cada día!\n\nCon aprecio,\nEl equipo de JosniShop`;
 
-    // Mensaje motivador
-    doc.setFontSize(12);
-    const mensaje = `Estimado encargado de inventario:
+    const render = () => {
+      doc.setFontSize(20);
+      doc.setTextColor('#1f618d');
+      doc.text(title, 140, 50);
+      doc.setFontSize(10);
+      doc.setTextColor('#555');
+      doc.text(`Generado: ${generatedAtStr}`, 140, 68);
 
-Este reporte refleja el estado actual de los productos en su almacén.
-Gracias por su dedicación y atención al detalle, pues su trabajo es fundamental para el éxito de nuestro equipo.
-Recuerde que un inventario bien gestionado es la base para un servicio de calidad y clientes satisfechos.
+      const mensajeLines = doc.splitTextToSize(mensaje, pageWidth - 80);
+      doc.setFontSize(11);
+      doc.setTextColor('#222');
+      doc.text(mensajeLines, 40, 100);
 
-¡Siga adelante, su esfuerzo marca la diferencia cada día!
+      const startY = 120 + mensajeLines.length * 12;
+      if (inventariosFiltrados.length === 0) {
+        doc.setFontSize(12);
+        doc.text('No hay datos de inventario para mostrar.', 40, startY);
+      } else {
+        const headers = [["ID", "Producto", "Cantidad", "Stock mínimo", "Última actualización"]];
+        const rows = inventariosFiltrados.map(inv => {
+          const producto = productos.find(p => p.id === inv.producto_id);
+          return [inv.id, producto?.nombre || '-', inv.cantidad, inv.stock_minimo, new Date(inv.fecha_actualizacion).toLocaleString()];
+        });
+        autoTable(doc, {
+          head: headers,
+          body: rows,
+          startY,
+          styles: { fontSize: 10 },
+          headStyles: { fillColor: '#27ae60', textColor: '#fff' },
+          margin: { left: 40, right: 40 }
+        });
+      }
 
-Con aprecio,
-El equipo de JosniShop`;
+      doc.setFontSize(9);
+      doc.setTextColor('#777');
+      doc.text(`Última vista: ${generatedAtStr}`, 40, doc.internal.pageSize.getHeight() - 30);
 
-    const mensajeLines = doc.splitTextToSize(mensaje, 180);
-    doc.text(mensajeLines, 14, 38);
+      doc.save('reporte_inventario.pdf');
+    };
 
-    // Calcula la posición Y después del texto
-    const yAfterMensaje = 38 + mensajeLines.length * 7 + 10;
-
-    // Tabla de inventario
-    if (inventariosFiltrados.length === 0) {
-      doc.setFontSize(12);
-      doc.text("No hay datos de inventario para mostrar.", 14, yAfterMensaje);
-    } else {
-      const headers = [["ID", "Producto", "Cantidad", "Stock mínimo", "Última actualización"]];
-      const rows = inventariosFiltrados.map(inv => {
-        const producto = productos.find(p => p.id === inv.producto_id);
-        return [
-          inv.id,
-          producto?.nombre || "-",
-          inv.cantidad,
-          inv.stock_minimo,
-          new Date(inv.fecha_actualizacion).toLocaleString()
-        ];
-      });
-      autoTable(doc, {
-        head: headers,
-        body: rows,
-        startY: yAfterMensaje,
-        styles: { halign: 'center' },
-        headStyles: { fillColor: "#27ae60", textColor: "#fff" },
-        margin: { top: 10 },
-      });
-    }
-
-    doc.save("reporte_inventario.pdf");
+    img.onload = () => {
+      const imgWidth = 80;
+      const imgHeight = (img.height / img.width) * imgWidth;
+      doc.addImage(img, 'PNG', 40, 30, imgWidth, imgHeight);
+      render();
+    };
+    img.onerror = () => { render(); };
   };
 
   if (loading) return <p>Cargando inventario...</p>;
@@ -204,6 +209,22 @@ El equipo de JosniShop`;
         >
           Descargar PDF
         </button>
+        <button
+          onClick={() => setSalesModalOpen(true)}
+          style={{
+            background: "#16a085",
+            color: "#fff",
+            borderRadius: "8px",
+            padding: "8px 18px",
+            border: "none",
+            fontWeight: "bold",
+            fontSize: "1rem",
+            cursor: "pointer",
+            transition: "background 0.2s"
+          }}
+        >
+          Ver reporte de ventas
+        </button>
       </div>
       {/* Nuevo contenedor para el scroll vertical */}
       <div className="table-container">
@@ -230,10 +251,10 @@ El equipo de JosniShop`;
                     <td>{inv.stock_minimo}</td>
                     <td>{new Date(inv.fecha_actualizacion).toLocaleString()}</td>
                     <td>
-                      <button className="btn-edit" onClick={() => abrirModal(inv)}>Editar</button>
-                      <br />
-                      <br />
-                      <button className="btn-delete" onClick={() => eliminarInventario(inv.id)}>Eliminar</button>
+                      <div className="table-actions">
+                        <button className="btn-edit" onClick={() => abrirModal(inv)}>Editar</button>
+                        <button className="btn-delete" onClick={() => eliminarInventario(inv.id)}>Eliminar</button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -268,6 +289,9 @@ El equipo de JosniShop`;
             </div>
           </motion.div>
         </div>
+      )}
+      {salesModalOpen && (
+        <SalesReportModal onClose={() => setSalesModalOpen(false)} />
       )}
     </motion.div>
   );
