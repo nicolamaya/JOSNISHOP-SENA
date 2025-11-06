@@ -26,6 +26,7 @@ from controllers.resena_controller import router as resena_router
 from controllers.rol_controller import router as rol_router
 from controllers.usuario_controller import router as usuario_router
 from controllers.bot_controller import router as bot_router
+from controllers.bot_admin_controller import router as bot_admin_router
 from api import compra
 from controllers.ventas_controller import router as ventas_router
 
@@ -122,3 +123,4 @@ app.include_router(compra.router)  # Nota: Se importa y se incluye de un módulo
 app.include_router(pago_router)
 app.include_router(ventas_router)
 app.include_router(bot_router)
+app.include_router(bot_admin_router)

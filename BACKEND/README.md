@@ -1,6 +1,34 @@
-# JOSNISHOP - Backend
+# 🚀 JOSNISHOP - Backend Documentation
 
-Bienvenido al backend de **JOSNISHOP**, una API para la gestión de una tienda en línea, desarrollada con **FastAPI**, **SQLAlchemy** y **MariaDB/MySQL**.
+## 📋 Descripción General
+
+JOSNISHOP Backend es una API RESTful robusta y escalable desarrollada con FastAPI, implementando una arquitectura moderna para e-commerce. Esta API proporciona todas las funcionalidades necesarias para gestionar una tienda en línea completa, desde la gestión de productos hasta el procesamiento de pagos.
+
+### 🎯 Características Principales
+
+#### 1. Arquitectura Modular
+- Diseño basado en módulos independientes
+- Separación clara de responsabilidades
+- Fácil mantenimiento y escalabilidad
+- Patrones de diseño modernos
+
+#### 2. Seguridad Avanzada
+- Autenticación JWT con refresh tokens
+- Protección contra ataques CSRF/XSS
+- Rate limiting y throttling
+- Validación robusta de datos
+
+#### 3. Rendimiento Optimizado
+- Consultas SQL optimizadas
+- Caché implementado
+- Procesamiento asíncrono
+- Paginación eficiente
+
+#### 4. Integración Completa
+- Procesamiento de pagos
+- Sistema de notificaciones
+- Gestión de archivos
+- Análisis en tiempo real
 
 ---
 
@@ -101,102 +129,587 @@ BACKEND/
 
 ---
 
-## 🚀 Tecnologías Utilizadas
+## �️ Stack Tecnológico
 
-- **Python 3.12+**
-- **FastAPI** (framework web)
-- **SQLAlchemy** (ORM)
-- **Alembic** (migraciones)
-- **MariaDB/MySQL** (base de datos principal)
-- **SQLite** (base de datos de pruebas)
-- **Pydantic** (validación de datos)
-- **Bruno** (colección de pruebas de endpoints)
-- **black** (formateador automático de código Python)
-- **isort** (ordenador de imports)
-- **ruff** (linter ultrarrápido)
+### Core Technologies
+
+#### 1. Backend Framework
+- **FastAPI v0.109.2**
+  ```python
+  from fastapi import FastAPI, Depends, HTTPException
+  from fastapi.middleware.cors import CORSMiddleware
+  ```
+  - Framework asíncrono de alto rendimiento
+  - Documentación automática con Swagger/ReDoc
+  - Validación automática con Pydantic
+  - Middleware y dependencias integradas
+
+#### 2. Base de Datos
+- **SQLAlchemy v2.0.25**
+  ```python
+  from sqlalchemy.ext.asyncio import AsyncSession
+  from sqlalchemy.orm import declarative_base
+  ```
+  - ORM completo y flexible
+  - Soporte para múltiples bases de datos
+  - Query builder poderoso
+  - Gestión de sesiones asíncronas
+
+- **Alembic v1.13.1**
+  ```python
+  # alembic/env.py
+  from alembic import context
+  from sqlalchemy import engine_from_config
+  ```
+  - Migraciones automáticas
+  - Versionado de base de datos
+  - Rollbacks seguros
+  - Scripts de migración
+
+#### 3. Validación y Serialización
+- **Pydantic v2.6.1**
+  ```python
+  from pydantic import BaseModel, Field, validator
+  ```
+  - Validación de datos en tiempo real
+  - Serialización/deserialización automática
+  - Integración con FastAPI
+  - Documentación automática
+
+### Herramientas de Desarrollo
+
+#### 1. Code Quality
+- **Black v24.1.1**: Formateador de código
+  ```toml
+  # pyproject.toml
+  [tool.black]
+  line-length = 88
+  target-version = ['py39']
+  ```
+
+- **Ruff v0.2.1**: Linter ultrarrápido
+  ```toml
+  [tool.ruff]
+  select = ["E", "F", "B", "I"]
+  ```
+
+- **isort v5.13.2**: Organizador de imports
+  ```toml
+  [tool.isort]
+  profile = "black"
+  multi_line_output = 3
+  ```
+
+#### 2. Testing y Documentación
+- **Pytest v8.0.0**: Framework de testing
+  ```python
+  import pytest
+  from fastapi.testclient import TestClient
+  ```
+
+- **Bruno**: Testing de API
+  ```json
+  // bruno.json
+  {
+    "version": "1",
+    "name": "JOSNISHOP API Tests"
+  }
+  ```
+
+### Base de Datos
+- **MariaDB/MySQL**: Producción
+  - Escalabilidad horizontal
+  - Replicación y clustering
+  - Backups automatizados
+  - Optimización de queries
+
+- **SQLite**: Desarrollo/Testing
+  - Configuración sin servidor
+  - Portabilidad completa
+  - Ideal para pruebas
+  - Rápido y ligero
+
+### Utilidades y Extensiones
+- **python-jose**: JWT authentication
+- **passlib**: Hashing de contraseñas
+- **python-multipart**: Manejo de archivos
+- **fastapi-mail**: Envío de emails
+- **python-dotenv**: Variables de entorno
 
 ---
 
-## ⚙️ Instalación y Puesta en Marcha
+## ⚙️ Guía de Instalación y Configuración
 
-1. **Clona el repositorio y accede a la carpeta del backend:**
+### 1. Preparación del Entorno
 
-   ```sh
-   git clone <url-del-repo>
-   cd JOSNISHOP-oficial/BACKEND
+#### Requisitos Previos
+- Python 3.9+
+- MariaDB/MySQL
+- Git
+- Node.js (para Bruno)
+
+#### Configuración Inicial
+```bash
+# Clonar el repositorio
+git clone <url-del-repo>
+cd JOSNISHOP-oficial/BACKEND
+
+# Crear entorno virtual
+python -m venv venv
+
+# Activar entorno virtual
+# En Windows:
+.\venv\Scripts\activate
+# En Linux/Mac:
+source venv/bin/activate
+
+# Instalar dependencias
+pip install -r requirements.txt
+```
+
+### 2. Configuración de la Base de Datos
+
+#### Configuración de Variables de Entorno
+```bash
+# .env
+DATABASE_URL=mysql+pymysql://user:password@localhost:3306/josnishop
+SECRET_KEY=tu_clave_secreta_aqui
+MAIL_USERNAME=tu_email@gmail.com
+MAIL_PASSWORD=tu_password_de_app
+MAIL_FROM=noreply@josnishop.com
+MAIL_PORT=587
+MAIL_SERVER=smtp.gmail.com
+```
+
+#### Configuración de la Base de Datos
+```python
+# db/database.py
+from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_async_engine(DATABASE_URL, echo=True)
+```
+
+#### Ejecución de Migraciones
+```bash
+# Generar migración
+alembic revision --autogenerate -m "Initial migration"
+
+# Aplicar migraciones
+alembic upgrade head
+
+# Revertir migración (si es necesario)
+alembic downgrade -1
+```
+
+### 3. Configuración del Servidor
+
+#### Development
+```bash
+# Iniciar servidor de desarrollo
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+
+# Con workers (producción)
+uvicorn main:app --workers 4 --host 0.0.0.0 --port 8000
+```
+
+#### Producción
+```bash
+# Configurar Gunicorn (Linux/Mac)
+gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
+
+# O usar supervisor
+[program:josnishop]
+command=/path/to/venv/bin/gunicorn main:app -w 4 -k uvicorn.workers.UvicornWorker
+directory=/path/to/JOSNISHOP-oficial/BACKEND
+user=www-data
+```
+
+### 4. Verificación de la Instalación
+
+1. **Comprobar API:**
+   ```bash
+   curl http://localhost:8000/health
    ```
 
-2. **Crea y activa un entorno virtual (opcional pero recomendado):**
+2. **Verificar Documentación:**
+   - Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+   - ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
-   ```sh
-   python -m venv env
-   .\env\Scripts\activate
+3. **Test de Base de Datos:**
+   ```bash
+   pytest tests/test_db.py -v
    ```
 
-3. **Instala las dependencias:**
+### 5. Configuración Adicional
 
-   ```sh
-   pip install -r requirements.txt
-   ```
+#### Caché Redis (Opcional)
+```python
+# utils/cache.py
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
 
-4. **Configura la base de datos:**  
-   Edita la cadena de conexión en `db/database.py` y en `alembic.ini` según tus credenciales y entorno.  
-   Si usas MariaDB/MySQL, asegúrate de tener el servidor corriendo y el usuario con permisos.
+@app.on_event("startup")
+async def startup():
+    redis = aioredis.from_url("redis://localhost")
+    FastAPICache.init(RedisBackend(redis), prefix="josnishop-cache")
+```
 
-5. **Ejecuta las migraciones para crear las tablas:**
+#### Logging
+```python
+# utils/logger.py
+import logging
 
-   ```sh
-   alembic upgrade head
-   ```
-
-6. **Inicia el servidor de desarrollo:**
-
-   ```sh
-   uvicorn main:app --reload
-   ```
-
-   El backend estará disponible en: [http://localhost:8000](http://localhost:8000)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('app.log'),
+        logging.StreamHandler()
+    ]
+)
 
 ---
 
-## 🧹 Formateo y Linting de Código
+## 🛡️ Seguridad y Mejores Prácticas
 
-- **Formatear automáticamente todo el código con black:**
-  ```sh
-  black .
-  ```
+### 1. Seguridad Implementada
 
-- **Ordenar imports con isort:**
-  ```sh
-  isort .
-  ```
+#### Autenticación y Autorización
+```python
+# Middleware de autenticación
+from fastapi import Security
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
-- **Revisar y corregir el código con ruff:**
-  ```sh
-  ruff check . --fix
-  ```
+security = HTTPBearer()
 
-- La configuración personalizada de estas herramientas está en `pyproject.toml`.
+@router.get("/protected")
+async def protected_route(credentials: HTTPAuthorizationCredentials = Security(security)):
+    token = credentials.credentials
+    # Validación del token...
+```
+
+#### Rate Limiting
+```python
+from slowapi import Limiter
+from slowapi.util import get_remote_address
+
+limiter = Limiter(key_func=get_remote_address)
+
+@router.get("/rate-limited")
+@limiter.limit("5/minute")
+async def rate_limited_route():
+    return {"message": "Rate limited endpoint"}
+```
+
+#### Validación de Datos
+```python
+from pydantic import BaseModel, Field, EmailStr
+
+class UserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=8)
+    nombre: str = Field(..., max_length=50)
+```
+
+#### Protección XSS
+```python
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=["josnishop.com"])
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["https://josnishop.com"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+```
+
+### 2. Calidad de Código
+
+#### Code Formatting
+```bash
+# Formatear código
+black .
+
+# Ordenar imports
+isort .
+
+# Lint y fix
+ruff check . --fix
+```
+
+#### Type Checking
+```python
+from typing import List, Optional
+
+def get_user_orders(
+    user_id: int,
+    status: Optional[str] = None
+) -> List[Order]:
+    # Implementation...
+```
+
+#### Testing
+```python
+# tests/test_productos.py
+import pytest
+from fastapi.testclient import TestClient
+
+def test_crear_producto():
+    response = client.post(
+        "/api/v1/productos",
+        json={
+            "nombre": "Test Producto",
+            "precio": 100.00
+        }
+    )
+    assert response.status_code == 201
+```
+
+### 3. Optimización de Rendimiento
+
+#### Caché
+```python
+from fastapi_cache.decorator import cache
+
+@router.get("/productos/{id}")
+@cache(expire=300)  # Cache por 5 minutos
+async def get_producto(id: int):
+    return await find_producto(id)
+```
+
+#### Consultas Optimizadas
+```python
+# Eager Loading
+query = select(Producto).options(
+    joinedload(Producto.categoria),
+    joinedload(Producto.resenas)
+)
+```
+
+#### Paginación Eficiente
+```python
+from fastapi_pagination import Page, paginate
+
+@router.get("/productos", response_model=Page[ProductoResponse])
+async def list_productos(search: str = ""):
+    productos = await get_productos_filtered(search)
+    return paginate(productos)
+```
+
+### 4. Manejo de Errores
+
+#### Error Handling Global
+```python
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request, exc):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={
+            "status": "error",
+            "message": exc.detail
+        }
+    )
+```
+
+#### Validación de Modelos
+```python
+class ProductoCreate(BaseModel):
+    nombre: str
+    precio: float
+    
+    @validator('precio')
+    def precio_valido(cls, v):
+        if v <= 0:
+            raise ValueError('El precio debe ser mayor a 0')
+        return v
+```
+
+### 5. Logging y Monitoreo
+
+#### Sistema de Logging
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+@router.post("/productos")
+async def create_producto(producto: ProductoCreate):
+    logger.info(f"Creando producto: {producto.nombre}")
+    try:
+        # Implementación...
+    except Exception as e:
+        logger.error(f"Error al crear producto: {str(e)}")
+        raise
+```
+
+#### Métricas y Monitoreo
+```python
+from prometheus_fastapi_instrumentator import Instrumentator
+
+Instrumentator().instrument(app).expose(app)
+```
 
 ---
 
-## 📚 Endpoints Principales
+## 📚 API Documentation
 
-- `GET /categorias` — Listado de categorías
-- `GET /productos` — Listado de productos
-- `GET /usuarios` — Listado de usuarios
-- `GET /roles` — Listado de roles
-- `GET /inventarios` — Inventario de productos
-- `GET /items` — Ítems de la tienda
-- `GET /pedidos` — Pedidos
-- `GET /detalles_pedido` — Detalles de pedido
-- `GET /notificaciones` — Notificaciones
-- `GET /resenas` — Reseñas de productos
-- `GET /videos` — Videos de productos
-- `GET /chats` — Mensajes de chat
+### 🔑 Autenticación
 
-Consulta y prueba todos los endpoints en la documentación interactiva de FastAPI:  
-[http://localhost:8000/docs](http://localhost:8000/docs)
+#### JWT Authentication
+```python
+from fastapi.security import OAuth2PasswordBearer
+from jose import JWTError, jwt
+
+@router.post("/login")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user = authenticate_user(form_data.username, form_data.password)
+    access_token = create_access_token(data={"sub": user.email})
+    return {"access_token": access_token, "token_type": "bearer"}
+```
+
+### 📦 Endpoints Principales
+
+#### 1. Gestión de Productos
+```python
+# Listar productos con filtros
+GET /api/v1/productos?categoria={id}&precio_min={valor}&precio_max={valor}
+
+# Crear nuevo producto
+POST /api/v1/productos
+{
+    "nombre": "string",
+    "descripcion": "string",
+    "precio": float,
+    "categoria_id": int,
+    "stock": int
+}
+
+# Actualizar producto
+PUT /api/v1/productos/{id}
+```
+
+#### 2. Sistema de Usuarios
+```python
+# Registro de usuario
+POST /api/v1/usuarios/registro
+{
+    "nombre": "string",
+    "email": "string",
+    "password": "string",
+    "rol_id": int
+}
+
+# Perfil de usuario
+GET /api/v1/usuarios/perfil
+Authorization: Bearer {token}
+```
+
+#### 3. Gestión de Pedidos
+```python
+# Crear pedido
+POST /api/v1/pedidos
+{
+    "usuario_id": int,
+    "items": [
+        {
+            "producto_id": int,
+            "cantidad": int
+        }
+    ]
+}
+
+# Listar pedidos con filtros
+GET /api/v1/pedidos?estado={estado}&fecha_inicio={date}&fecha_fin={date}
+```
+
+#### 4. Sistema de Reseñas
+```python
+# Añadir reseña
+POST /api/v1/resenas
+{
+    "producto_id": int,
+    "usuario_id": int,
+    "calificacion": int,
+    "comentario": "string"
+}
+
+# Listar reseñas por producto
+GET /api/v1/resenas/producto/{id}
+```
+
+### 🔄 Respuestas Estandarizadas
+
+#### Éxito
+```json
+{
+    "status": "success",
+    "data": {
+        // datos solicitados
+    },
+    "message": "Operación exitosa"
+}
+```
+
+#### Error
+```json
+{
+    "status": "error",
+    "error": {
+        "code": "ERROR_CODE",
+        "message": "Descripción del error"
+    }
+}
+```
+
+### 📝 Paginación Estándar
+```python
+@router.get("/productos")
+async def list_productos(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(10, le=100),
+    sort: str = Query("nombre"),
+    order: str = Query("asc")
+):
+    productos = await get_productos(skip, limit, sort, order)
+    return PaginatedResponse(
+        data=productos,
+        total=total,
+        page=skip // limit + 1,
+        per_page=limit
+    )
+```
+
+### 🔍 Filtros y Búsqueda
+```python
+# Ejemplo de endpoint con filtros
+GET /api/v1/productos?
+    categoria=1&
+    precio_min=100&
+    precio_max=500&
+    ordenar=precio&
+    direccion=desc&
+    buscar=zapatillas
+```
+
+### 📊 Endpoints de Análisis
+```python
+# Métricas de ventas
+GET /api/v1/metricas/ventas?periodo=mensual
+
+# Análisis de productos
+GET /api/v1/metricas/productos/top-vendidos
+
+# Estadísticas de usuarios
+GET /api/v1/metricas/usuarios/actividad
+```
+
+Consulta la documentación interactiva completa en:
+- Swagger UI: [http://localhost:8000/docs](http://localhost:8000/docs)
+- ReDoc: [http://localhost:8000/redoc](http://localhost:8000/redoc)
 
 ---
 
