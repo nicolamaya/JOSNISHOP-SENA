@@ -38,6 +38,17 @@ const Registro: React.FC = () => {
       setError("Debes aceptar los términos y condiciones para continuar.");
       return;
     }
+    // Validación de contraseña: mínimo 8 caracteres, una mayúscula, un número y un símbolo
+    const validatePassword = (pwd: string) => {
+      const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'".,<>\/\\?\\|`~]).{8,}$/;
+      return re.test(pwd);
+    };
+    if (!validatePassword(formData.password)) {
+      setError(
+        "La contraseña debe tener al menos 8 caracteres, una letra mayúscula, un número y un símbolo."
+      );
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       setError("Las contraseñas no coinciden");
       return;

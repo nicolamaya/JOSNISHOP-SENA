@@ -22,6 +22,7 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
   const [respuesta, setRespuesta] = useState("");
   const [editandoId, setEditandoId] = useState<number | null>(null);
   const [editandoResena, setEditandoResena] = useState<Resena | null>(null);
+  const [selectedRespuestaResena, setSelectedRespuestaResena] = useState<Resena | null>(null);
   const [error, setError] = useState("");
   const [puedeResenar, setPuedeResenar] = useState(false);
   const [showModal, setShowModal] = useState(false);
@@ -141,23 +142,13 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
 
   return (
     <div>
-      <h2 style={{ fontWeight: 700, fontSize: "2rem", margin: "1rem 0" }}>
-        {esVendedor ? "Reseñas de tus productos" : "Reseñas del producto"}
-      </h2>
-      {resenas.length === 0 && <p>No hay reseñas aún.</p>}
-      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        {resenas.map(resena => (
-          <div
-            key={resena.id}
-            style={{
-              background: "#fff",
-              borderRadius: "12px",
-              boxShadow: "0 2px 8px #0001",
-              padding: "1.2rem 1.5rem",
-              position: "relative",
-              borderLeft: "6px solid #006633",
-            }}
-          >
+      <div className="panel-card">
+        <div className="table-container">
+          <div style={{ padding: 12 }}>
+            {resenas.length === 0 && <p>No hay reseñas aún.</p>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
+              {resenas.map(resena => (
+                <div key={resena.id} style={{ background: '#fff', borderRadius: 12, boxShadow: '0 6px 18px rgba(0,0,0,0.06)', padding: '16px', position: 'relative', borderLeft: '6px solid #006633' }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
               <div>
                 <span style={{ fontWeight: 600, color: "#006633" }}>
@@ -228,7 +219,12 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
                       }}
                       onMouseOver={e => (e.currentTarget.style.background = "#bdbdbd")}
                       onMouseOut={e => (e.currentTarget.style.background = "#e0e0e0")}
-                      onClick={() => setEditandoId(resena.id)}
+                      onClick={() => {
+                        // Abrir modal para editar la respuesta
+                        setEditandoId(resena.id);
+                        setSelectedRespuestaResena(resena);
+                        setRespuesta(resena.respuesta_vendedor || "");
+                      }}
                     >
                       Editar
                     </button>
@@ -250,52 +246,32 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
                       Eliminar
                     </button>
                   </div>
-                  {editandoId === resena.id && (
-                    <form onSubmit={e => handleRespuesta(e, resena.id)} style={{ marginTop: 8 }}>
-                      <input
-                        type="text"
-                        value={respuesta}
-                        onChange={e => setRespuesta(e.target.value)}
-                        style={{ padding: "4px", borderRadius: 4, border: "1px solid #ccc", width: "70%" }}
-                      />
-                      <button type="submit" style={{ marginLeft: 8, background: "#006633", color: "#fff", border: "none", borderRadius: 4, padding: "2px 10px" }}>Guardar</button>
-                      <button type="button" style={{ marginLeft: 4, background: "#e0e0e0", border: "none", borderRadius: 4, padding: "2px 10px" }} onClick={() => setEditandoId(null)}>Cancelar</button>
-                    </form>
-                  )}
+                  {/* edición de respuesta ahora en modal */}
                 </div>
               ) : (
-                editandoId === resena.id ? (
-                  <form onSubmit={e => handleRespuesta(e, resena.id)} style={{ marginTop: 8 }}>
-                    <input
-                      type="text"
-                      value={respuesta}
-                      onChange={e => setRespuesta(e.target.value)}
-                      placeholder="Responder..."
-                      style={{ padding: "4px", borderRadius: 4, border: "1px solid #ccc", width: "70%" }}
-                    />
-                    <button type="submit" style={{ marginLeft: 8, background: "#006633", color: "#fff", border: "none", borderRadius: 4, padding: "2px 10px" }}>Enviar</button>
-                    <button type="button" style={{ marginLeft: 4, background: "#e0e0e0", border: "none", borderRadius: 4, padding: "2px 10px" }} onClick={() => setEditandoId(null)}>Cancelar</button>
-                  </form>
-                ) : (
-                  <button
-                    style={{
-                      background: "#006633",
-                      color: "#fff",
-                      border: "none",
-                      borderRadius: "4px",
-                      padding: "2px 10px",
-                      cursor: "pointer",
-                      fontWeight: 500,
-                      marginTop: 10,
-                      transition: "background 0.2s",
-                    }}
-                    onMouseOver={e => (e.currentTarget.style.background = "#004d2c")}
-                    onMouseOut={e => (e.currentTarget.style.background = "#006633")}
-                    onClick={() => setEditandoId(resena.id)}
-                  >
-                    Responder
-                  </button>
-                )
+                // abrir un modal para responder/editar
+                <button
+                  style={{
+                    background: "#006633",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "2px 10px",
+                    cursor: "pointer",
+                    fontWeight: 500,
+                    marginTop: 10,
+                    transition: "background 0.2s",
+                  }}
+                  onMouseOver={e => (e.currentTarget.style.background = "#004d2c")}
+                  onMouseOut={e => (e.currentTarget.style.background = "#006633")}
+                  onClick={() => {
+                    setEditandoId(resena.id);
+                    setSelectedRespuestaResena(resena);
+                    setRespuesta("");
+                  }}
+                >
+                  Responder
+                </button>
               )
             )}
             {/* Si eres cliente, muestra la respuesta del vendedor si existe */}
@@ -304,10 +280,60 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
                 <strong>Respuesta del vendedor:</strong> {resena.respuesta_vendedor}
               </div>
             )}
+                </div>
+              ))}
+            </div>
+            {selectedRespuestaResena && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                width: '100vw',
+                height: '100vh',
+                background: 'rgba(0,0,0,0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1200
+              }}>
+                <div style={{
+                  background: '#fff',
+                  borderRadius: 14,
+                  padding: '1.6rem',
+                  width: 'min(720px, 92%)',
+                  boxShadow: '0 12px 40px rgba(0,0,0,0.18)'
+                }}>
+                  <h3 style={{ margin: 0, marginBottom: 8, color: '#17633a' }}>Editar respuesta</h3>
+                  <p style={{ marginTop: 0, marginBottom: 12, color: '#444' }}>
+                    <strong>Cliente:</strong> {selectedRespuestaResena.cliente_id} &nbsp; • &nbsp; <strong>Producto:</strong> {selectedRespuestaResena.producto_id}
+                  </p>
+                  <form onSubmit={e => handleRespuesta(e, selectedRespuestaResena.id)} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <textarea
+                      value={respuesta}
+                      onChange={e => setRespuesta(e.target.value)}
+                      placeholder="Escribe tu respuesta..."
+                      style={{
+                        width: '100%',
+                        minHeight: 120,
+                        borderRadius: 10,
+                        border: '2px solid #27ae60',
+                        padding: 12,
+                        fontSize: '1rem',
+                        background: '#f9f9f9',
+                        resize: 'vertical'
+                      }}
+                    />
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                      <button type="button" onClick={() => { setEditandoId(null); setSelectedRespuestaResena(null); setRespuesta(''); }} style={{ background: '#e0e0e0', border: 'none', borderRadius: 8, padding: '10px 18px', cursor: 'pointer' }}>Cancelar</button>
+                      <button type="submit" style={{ background: '#27ae60', color: '#fff', border: 'none', borderRadius: 8, padding: '10px 18px', cursor: 'pointer' }}>Guardar</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+            {error && <p style={{ color: 'red', marginTop: 12 }}>{error}</p>}
           </div>
-        ))}
-      </div>
-      {error && <p style={{ color: "red", marginTop: 12 }}>{error}</p>}
+        </div>
       {/* Solo cliente puede dejar reseña */}
       {!esVendedor && puedeResenar && (
         <>
@@ -366,6 +392,7 @@ const ResenasPanel: React.FC<Props> = ({ esVendedor, vendedorId, productoId, onR
           }
         />
       )}
+      </div>
     </div>
   );
 };

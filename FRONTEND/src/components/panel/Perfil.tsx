@@ -66,6 +66,15 @@ const Perfil: React.FC = () => {
   // Maneja la actualización del perfil
   const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault(); // Previene recarga
+    // Validación de contraseña: si se ingresó una nueva, debe cumplir requisitos
+    const validatePassword = (pwd: string) => {
+      const re = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=\[\]{};:'".,<>\/\\?\\|`~]).{8,}$/;
+      return re.test(pwd);
+    };
+    if (form.contraseña && !validatePassword(form.contraseña)) {
+      setAlert({ type: 'error', message: 'La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un símbolo.' });
+      return;
+    }
     try {
       // PUT al backend con los datos actualizados
       await axios.put(`http://localhost:8000/usuarios/${user?.id_usuario}`, form);

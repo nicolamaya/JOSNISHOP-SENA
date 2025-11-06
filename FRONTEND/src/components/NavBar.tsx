@@ -14,7 +14,7 @@ const NavBar: React.FC<NavBarProps> = ({ onOpenMenu }) => {
           <FaBars />
         </button>
         <a href="/">
-          <img src="/public/logo.png" alt="Logo JOSNISHOP" className="logo" />
+          <img src="/logo.png" alt="Logo JOSNISHOP" className="logo" />
         </a>
         <a href="/categorias" className="titulo">
           Categorías

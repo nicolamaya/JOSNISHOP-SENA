@@ -101,8 +101,36 @@ const Inicio: React.FC = () => {
       setFormStockMinimo(1);
       setFormFile(null);
       setShowAddModal(false);
-      // opcional: recargar página o actualizar lista de productos
-      window.location.reload();
+      // Recargar productos sin recargar la página
+      try {
+        const res2 = await fetch('http://127.0.0.1:8000/productos/rich');
+        if (res2.ok) {
+          const data2 = await res2.json();
+          const mapped = data2.map((p: any) => {
+            let imgUrl: string | null = null;
+            if (p.image) {
+              const v = String(p.image).trim();
+              if (v.startsWith('http://') || v.startsWith('https://') || v.startsWith('//')) {
+                imgUrl = v;
+              } else {
+                imgUrl = `http://127.0.0.1:8000${v}`;
+              }
+            }
+            return {
+              id: p.id,
+              nombre: p.nombre,
+              descripcion: p.descripcion,
+              precio: p.precio ? `$${Number(p.precio).toLocaleString('es-CO')} COP` : null,
+              img: imgUrl,
+              link: `/producto/${p.id}`,
+              categoria: '',
+            };
+          });
+          setProductos(mapped);
+        }
+      } catch (err) {
+        console.error('Error recargando productos', err);
+      }
     } catch (err) {
       console.error(err);
       alert('Error al crear producto');
@@ -470,9 +498,20 @@ const Inicio: React.FC = () => {
             <div className="inicio-producto" key={producto.id}>
               <a href={producto.link} className="btn">
                 {producto.img ? (
-                  <img src={producto.img} alt={producto.nombre} />
+                  <img
+                    src={producto.img}
+                    alt={producto.nombre}
+                    onError={e => {
+                      const target = e.currentTarget;
+                      target.onerror = null;
+                      target.src = "/src/assets/IMG/index/no-image.png";
+                    }}
+                  />
                 ) : (
-                  <div className="product-img-placeholder" />
+                  <img
+                    src={"/src/assets/IMG/index/no-image.png"}
+                    alt="Sin imagen"
+                  />
                 )}
               </a>
               <p className="precio">{producto.precio || ''}</p>

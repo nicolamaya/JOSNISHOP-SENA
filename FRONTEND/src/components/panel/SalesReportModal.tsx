@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import ExcelJS from 'exceljs';
 
 interface ReportRow {
   producto_id: number;
@@ -127,17 +128,57 @@ const SalesReportModal: React.FC<Props> = ({ onClose, date }) => {
 
   const downloadExcel = async () => {
     try {
-      const XLSX = await import('xlsx');
-      const worksheetData = [
-        ["producto_id", "producto_nombre", "total_cantidad", "total_revenue"],
-        ...rows.map(r => [r.producto_id, r.producto_nombre, r.total_cantidad, r.total_revenue])
-      ];
-      const ws = XLSX.utils.aoa_to_sheet(worksheetData);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Ventas");
-      XLSX.writeFile(wb, `ventas_${date || new Date().toISOString().slice(0,10)}.xlsx`);
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Ventas');
+
+      // Añadir encabezados con estilo
+      worksheet.addRow(['ID', 'Producto', 'Cantidad', 'Ingresos (S/.)']).eachCell(cell => {
+        cell.font = { bold: true };
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '27AE60' }
+        };
+        cell.alignment = { horizontal: 'center' };
+      });
+
+      // Añadir datos
+      rows.forEach(r => {
+        worksheet.addRow([
+          r.producto_id,
+          r.producto_nombre,
+          r.total_cantidad,
+          Number(r.total_revenue).toFixed(2)
+        ]);
+      });
+
+      // Ajustar ancho de columnas
+      worksheet.columns.forEach(column => {
+        column.width = 20;
+      });
+
+      // Añadir totales
+      const totalRow = worksheet.addRow([
+        'TOTAL',
+        '',
+        rows.reduce((s, r) => s + r.total_cantidad, 0),
+        Number(rows.reduce((s, r) => s + r.total_revenue, 0)).toFixed(2)
+      ]);
+      totalRow.font = { bold: true };
+
+      // Guardar archivo
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `ventas_${date || new Date().toISOString().slice(0,10)}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error cargando xlsx:', err);
+      console.error('Error generando Excel:', err);
       alert('No se pudo generar el Excel. Asegúrate de haber instalado la dependencia xlsx.');
     }
   };
